@@ -67,8 +67,14 @@ function renderLogoSVG(
 ): string {
   const logoOffset = logoSize / 2;
 
-  // Check if the source is an SVG (starts with data:image/svg or is raw SVG)
-  if (logoSrc.includes('data:image/svg') || logoSrc.trim().startsWith('<svg')) {
+  // Check if the source is an SVG (data URL, raw SVG tag, or XML declaration)
+  const trimmedSrc = logoSrc.trim();
+  const isSvg =
+    logoSrc.includes('data:image/svg') ||
+    trimmedSrc.startsWith('<svg') ||
+    trimmedSrc.startsWith('<?xml');
+
+  if (isSvg) {
     // For SVG logos, embed directly with proper scaling
     let svgContent = logoSrc;
     if (logoSrc.includes('data:image/svg')) {
@@ -88,15 +94,26 @@ function renderLogoSVG(
     const viewBoxMatch = svgContent.match(/viewBox=["']([^"']+)["']/);
     const viewBox = viewBoxMatch ? viewBoxMatch[1] : '0 0 100 100';
 
+    // Extract xmlns declarations from original SVG tag to preserve namespaces
+    const svgTagMatch = svgContent.match(/<svg([^>]*)>/i);
+    let namespaceAttrs = '';
+    if (svgTagMatch) {
+      // Extract all xmlns attributes
+      const xmlns = svgTagMatch[1].match(/xmlns[^=]*=["'][^"']*["']/gi);
+      if (xmlns) {
+        namespaceAttrs = ' ' + xmlns.join(' ');
+      }
+    }
+
     // Remove XML declaration and SVG tags, keeping only the content
     const innerContent = svgContent.replace(
       /<\?xml[^>]*>|<svg[^>]*>|<\/svg>/gi,
       ''
     );
 
-    // Wrap SVG in a group with positioning and scaling
+    // Wrap SVG in a group with positioning and scaling, preserving namespaces
     return `<g transform="translate(${centerX - logoOffset}, ${centerY - logoOffset})">
-      <svg width="${logoSize}" height="${logoSize}" viewBox="${viewBox}">
+      <svg width="${logoSize}" height="${logoSize}" viewBox="${viewBox}"${namespaceAttrs}>
         ${innerContent}
       </svg>
     </g>`;

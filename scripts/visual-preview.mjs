@@ -9,7 +9,7 @@
  */
 
 import { chromium } from '@playwright/test';
-import { mkdirSync, writeFileSync, existsSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { exec } from 'child_process';
 import { platform } from 'os';
@@ -17,6 +17,8 @@ import { platform } from 'os';
 const DIST_NODE_PATH = join(process.cwd(), 'dist/node.mjs');
 const DIST_BROWSER_PATH = join(process.cwd(), 'dist/browser.mjs');
 const OUTPUT_BASE = join(process.cwd(), 'visual-preview-output');
+const DEMO_LOGO_PNG = join(process.cwd(), 'demo/logo.png');
+const DEMO_LOGO_SVG = join(process.cwd(), 'demo/logo.svg');
 
 // ============================================================================
 // Test Matrix
@@ -279,6 +281,105 @@ const TEST_MATRIX = [
     description: 'Circle solid border',
   },
 
+  // Category: Logo
+  {
+    category: 'logo',
+    name: 'png-default',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: pngToDataURL(DEMO_LOGO_PNG),
+      },
+    },
+    description: 'PNG logo with default scale (20%)',
+  },
+  {
+    category: 'logo',
+    name: 'png-small',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: pngToDataURL(DEMO_LOGO_PNG),
+        scale: 0.15,
+      },
+    },
+    description: 'PNG logo scaled to 15%',
+  },
+  {
+    category: 'logo',
+    name: 'png-large',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: pngToDataURL(DEMO_LOGO_PNG),
+        scale: 0.3,
+      },
+    },
+    description: 'PNG logo scaled to 30% (max)',
+  },
+  {
+    category: 'logo',
+    name: 'svg-default',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: svgToString(DEMO_LOGO_SVG),
+      },
+    },
+    description: 'SVG logo with default scale (20%)',
+  },
+  {
+    category: 'logo',
+    name: 'svg-small',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: svgToString(DEMO_LOGO_SVG),
+        scale: 0.15,
+      },
+    },
+    description: 'SVG logo scaled to 15%',
+  },
+  {
+    category: 'logo',
+    name: 'svg-large',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: svgToString(DEMO_LOGO_SVG),
+        scale: 0.3,
+      },
+    },
+    description: 'SVG logo scaled to 30% (max)',
+  },
+  {
+    category: 'logo',
+    name: 'logo-with-shapes',
+    input: 'Logo Test',
+    options: {
+      eyes: { shape: 'squircle', color: '#667eea' },
+      pupils: { color: '#764ba2' },
+      dots: { shape: 'dots', color: '#333333' },
+      logo: {
+        src: pngToDataURL(DEMO_LOGO_PNG),
+        scale: 0.25,
+      },
+    },
+    description: 'Logo with custom shapes and colors',
+  },
+  {
+    category: 'logo',
+    name: 'logo-with-border',
+    input: 'Logo Test',
+    options: {
+      border: { shape: 'squircle', width: 12, color: '#667eea', style: 'solid' },
+      logo: {
+        src: pngToDataURL(DEMO_LOGO_PNG),
+      },
+    },
+    description: 'Logo with border',
+  },
+
   // Category: Edge Cases
   {
     category: 'edge-cases',
@@ -344,6 +445,16 @@ function formatInput(input) {
     return input.length > 50 ? input.substring(0, 47) + '...' : input;
   }
   return JSON.stringify(input);
+}
+
+function pngToDataURL(filePath) {
+  const buffer = readFileSync(filePath);
+  const base64 = buffer.toString('base64');
+  return `data:image/png;base64,${base64}`;
+}
+
+function svgToString(filePath) {
+  return readFileSync(filePath, 'utf8');
 }
 
 function openBrowser(filePath) {
