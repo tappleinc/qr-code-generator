@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tapple QR Code Generator - Interactive Demo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #eee;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: visible;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0983b3 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 12px 12px 0 0;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      padding: 30px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #333;
+      border-bottom: 2px solid #0983b3;
+      padding-bottom: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="color"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #0983b3;
+    }
+
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .color-input-wrapper {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .color-input-wrapper input[type="color"] {
+      width: 60px;
+      height: 40px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .color-input-wrapper input[type="text"] {
+      flex: 1;
+    }
+
+    .preview {
+      position: sticky;
+      top: 20px;
+      align-self: flex-start;
+    }
+
+    .qr-display {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .qr-display img {
+      width: 300px;
+      height: 300px;
+      image-rendering: pixelated;
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #0983b3;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+      font-size: 0.9rem;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #c3e6cb;
+      font-size: 0.9rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .info-text {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #666;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    footer a {
+      color: #0983b3;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Tapple QR Code Generator</h1>
+      <p>Interactive demo showcasing all customization options</p>
+    </header>
+
+    <div class="main-content">
+      <div class="controls">
+        <!-- Content Section -->
+        <div class="section">
+          <h2>Content</h2>
+          <div class="form-group">
+            <label for="content">QR Code Content</label>
+            <textarea id="content" placeholder="Enter text, URL, or any data...">https://github.com/tappleinc/qr-code-generator</textarea>
+            <div class="info-text">Supports text, URLs, vCard, WiFi, and more. Error correction level is auto-selected.</div>
+          </div>
+        </div>
+
+        <!-- Size & Margin Section -->
+        <div class="section">
+          <h2>Size & Margin</h2>
+          <div class="form-group">
+            <label for="size">Size (pixels): <span id="sizeValue">300</span></label>
+            <input type="range" id="size" min="100" max="1000" value="300" step="50">
+          </div>
+          
+          <div class="form-group">
+            <label for="margin">Margin (pixels): <span id="marginValue">24</span></label>
+            <input type="range" id="margin" min="0" max="100" value="24" step="4">
+            <div class="info-text">Spacing around QR code (0-100px)</div>
+          </div>
+        </div>
+
+        <!-- Colors Section -->
+        <div class="section">
+          <h2>Colors</h2>
+          <div class="form-group">
+            <label>Background Color</label>
+            <div class="color-input-wrapper">
+              <input type="color" id="bgColor" value="#ffffff">
+              <input type="text" id="bgColorHex" value="#ffffff">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Eye Color</label>
+            <div class="color-input-wrapper">
+              <input type="color" id="eyeColor" value="#000000">
+              <input type="text" id="eyeColorHex" value="#000000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Pupil Color</label>
+            <div class="color-input-wrapper">
+              <input type="color" id="pupilColor" value="#000000">
+              <input type="text" id="pupilColorHex" value="#000000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Dot Color</label>
+            <div class="color-input-wrapper">
+              <input type="color" id="dotColor" value="#000000">
+              <input type="text" id="dotColorHex" value="#000000">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Border Color</label>
+            <div class="color-input-wrapper">
+              <input type="color" id="borderColor" value="#000000">
+              <input type="text" id="borderColorHex" value="#000000">
+            </div>
+          </div>
+        </div>
+
+        <!-- Shapes Section -->
+        <div class="section">
+          <h2>Shapes</h2>
+          <div class="form-group">
+            <label for="eyeShape">Eye Frame Shape</label>
+            <select id="eyeShape">
+              <option value="square" selected>Square</option>
+              <option value="squircle">Squircle</option>
+              <option value="diagonal-filet-square">Diagonal Filet Square</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dotShape">Dot Shape</label>
+            <select id="dotShape">
+              <option value="classic" selected>Classic</option>
+              <option value="dots">Dots (rounded)</option>
+              <option value="square">Square</option>
+              <option value="diagonal-filet-square">Diagonal Filet Square</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dotScale">Dot Scale: <span id="dotScaleValue">1.0</span></label>
+            <input type="range" id="dotScale" min="0.75" max="1.25" value="1.0" step="0.05">
+            <div class="info-text">Adjusts visual size of dots (0.75-1.25)</div>
+          </div>
+        </div>
+
+        <!-- Border Section -->
+        <div class="section">
+          <h2>Border</h2>
+          <div class="form-group">
+            <label for="borderShape">Border Shape</label>
+            <select id="borderShape">
+              <option value="none" selected>None</option>
+              <option value="square">Square</option>
+              <option value="squircle">Squircle</option>
+              <option value="circle">Circle</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="borderStyle">Border Style</label>
+            <select id="borderStyle">
+              <option value="solid" selected>Solid</option>
+              <option value="dashed">Dashed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="borderWidth">Border Width: <span id="borderWidthValue">10</span>px</label>
+            <input type="range" id="borderWidth" min="0" max="50" value="10" step="1">
+            <div class="info-text">Border thickness in pixels (0-50)</div>
+          </div>
+
+        </div>
+
+        <!-- Logo Section -->
+        <div class="section">
+          <h2>Logo (Optional)</h2>
+          <div class="checkbox-group">
+            <input type="checkbox" id="enableLogo">
+            <label for="enableLogo">Add logo to center</label>
+          </div>
+
+          <div id="logoControls" style="display: none;">
+            <div class="form-group">
+              <label for="logoInput">Logo Image</label>
+              <input type="file" id="logoInput" accept="image/*">
+              <div class="info-text">Accepts PNG, JPG, SVG, or WebP</div>
+            </div>
+
+            <div class="form-group">
+              <label for="logoScale">Logo Scale: <span id="logoScaleValue">0.2</span></label>
+              <input type="range" id="logoScale" min="0.1" max="0.3" value="0.2" step="0.02">
+              <div class="info-text">As percentage of QR width (max: 0.3)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="qr-display" id="qrDisplay">
+          <p style="color: #999;">QR code will appear here</p>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="download-buttons">
+          <button class="btn btn-primary" id="downloadPNG">Download PNG</button>
+          <button class="btn btn-primary" id="downloadSVG">Download SVG</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Built with <a href="https://github.com/tappleinc/qr-code-generator" target="_blank">qr-code-generator</a> • 
+      <a href="https://github.com/tappleinc/qr-code-generator#readme" target="_blank">Documentation</a></p>
+    </footer>
+  </div>
+
+  <script type="module">
+    // Import from built package
+    import { toPNGDataURL, toSVGDataURL, toSVGString } from '../dist/index.mjs';
+
+    // Constants
+    const PREVIEW_SIZE = 300; // Fixed preview size for performance
+
+    // State
+    let currentLogoDataURL = null;
+    let currentFormat = 'png';
+
+    // Get all form elements
+    const elements = {
+      content: document.getElementById('content'),
+      size: document.getElementById('size'),
+      margin: document.getElementById('margin'),
+      bgColor: document.getElementById('bgColor'),
+      bgColorHex: document.getElementById('bgColorHex'),
+      eyeColor: document.getElementById('eyeColor'),
+      eyeColorHex: document.getElementById('eyeColorHex'),
+      pupilColor: document.getElementById('pupilColor'),
+      pupilColorHex: document.getElementById('pupilColorHex'),
+      dotColor: document.getElementById('dotColor'),
+      dotColorHex: document.getElementById('dotColorHex'),
+      eyeShape: document.getElementById('eyeShape'),
+      dotShape: document.getElementById('dotShape'),
+      dotScale: document.getElementById('dotScale'),
+      borderShape: document.getElementById('borderShape'),
+      borderWidth: document.getElementById('borderWidth'),
+      borderColor: document.getElementById('borderColor'),
+      borderColorHex: document.getElementById('borderColorHex'),
+      borderStyle: document.getElementById('borderStyle'),
+      enableLogo: document.getElementById('enableLogo'),
+      logoInput: document.getElementById('logoInput'),
+      logoScale: document.getElementById('logoScale'),
+      qrDisplay: document.getElementById('qrDisplay'),
+      statusMessage: document.getElementById('statusMessage'),
+      downloadPNG: document.getElementById('downloadPNG'),
+      downloadSVG: document.getElementById('downloadSVG')
+    };
+
+    // Sync color pickers with hex inputs
+    function syncColorInputs(colorPicker, hexInput) {
+      colorPicker.addEventListener('input', () => {
+        hexInput.value = colorPicker.value;
+        generateQR();
+      });
+      hexInput.addEventListener('input', () => {
+        if (/^#[0-9A-Fa-f]{6}$/.test(hexInput.value)) {
+          colorPicker.value = hexInput.value;
+          generateQR();
+        }
+      });
+    }
+
+    syncColorInputs(elements.bgColor, elements.bgColorHex);
+    syncColorInputs(elements.eyeColor, elements.eyeColorHex);
+    syncColorInputs(elements.pupilColor, elements.pupilColorHex);
+    syncColorInputs(elements.dotColor, elements.dotColorHex);
+    syncColorInputs(elements.borderColor, elements.borderColorHex);
+
+    // Update range value displays
+    elements.size.addEventListener('input', () => {
+      document.getElementById('sizeValue').textContent = elements.size.value;
+      generateQR();
+    });
+    elements.margin.addEventListener('input', () => {
+      document.getElementById('marginValue').textContent = elements.margin.value;
+      generateQR();
+    });
+    elements.dotScale.addEventListener('input', () => {
+      document.getElementById('dotScaleValue').textContent = elements.dotScale.value;
+      generateQR();
+    });
+    elements.borderWidth.addEventListener('input', () => {
+      document.getElementById('borderWidthValue').textContent = elements.borderWidth.value;
+      generateQR();
+    });
+    elements.logoScale.addEventListener('input', () => {
+      document.getElementById('logoScaleValue').textContent = elements.logoScale.value;
+      generateQR();
+    });
+
+    // Logo controls
+    elements.enableLogo.addEventListener('change', () => {
+      document.getElementById('logoControls').style.display = 
+        elements.enableLogo.checked ? 'block' : 'none';
+      if (!elements.enableLogo.checked) {
+        currentLogoDataURL = null;
+      }
+      generateQR();
+    });
+
+    elements.logoInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        currentLogoDataURL = event.target.result;
+        generateQR();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Generate QR code
+    async function generateQR() {
+      const content = elements.content.value.trim();
+      if (!content) {
+        showMessage('Please enter some content', 'error');
+        return;
+      }
+
+      try {
+        // Get user-specified values
+        const userSize = parseInt(elements.size.value);
+        const userMargin = parseInt(elements.margin.value);
+        const userBorderWidth = parseFloat(elements.borderWidth.value);
+
+        // Calculate preview dimensions (scaled if needed for performance)
+        let previewSize, previewMargin, previewBorderWidth;
+
+        if (userSize <= PREVIEW_SIZE) {
+          // Small enough - use actual values
+          previewSize = userSize;
+          previewMargin = userMargin;
+          previewBorderWidth = userBorderWidth;
+        } else {
+          // Scale down proportionally for faster preview rendering
+          const scaleRatio = PREVIEW_SIZE / userSize;
+          previewSize = PREVIEW_SIZE;
+          previewMargin = Math.round(userMargin * scaleRatio);
+          previewBorderWidth = Math.round(userBorderWidth * scaleRatio); // Must be integer for buffer allocation
+        }
+
+        // Build options object with preview dimensions
+        const options = {
+          size: previewSize,
+          margin: previewMargin,
+          backgroundColor: elements.bgColorHex.value,
+          eyes: {
+            shape: elements.eyeShape.value,
+            color: elements.eyeColorHex.value
+          },
+          pupils: {
+            color: elements.pupilColorHex.value
+          },
+          dots: {
+            shape: elements.dotShape.value,
+            color: elements.dotColorHex.value,
+            scale: parseFloat(elements.dotScale.value)
+          }
+        };
+
+        // Add border if not "none"
+        if (elements.borderShape.value !== 'none') {
+          options.border = {
+            shape: elements.borderShape.value,
+            width: previewBorderWidth,
+            color: elements.borderColorHex.value,
+            style: elements.borderStyle.value
+          };
+        }
+
+        // Add logo if enabled
+        if (elements.enableLogo.checked && currentLogoDataURL) {
+          options.logo = {
+            src: currentLogoDataURL,
+            scale: parseFloat(elements.logoScale.value)
+          };
+        }
+
+        // Generate QR code based on current format
+        let dataURL;
+        if (currentFormat === 'png') {
+          dataURL = toPNGDataURL(content, options);
+        } else {
+          dataURL = toSVGDataURL(content, options);
+        }
+
+        // Display QR code
+        elements.qrDisplay.innerHTML = `<img src="${dataURL}" alt="Generated QR Code">`;
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+        showMessage(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Show status message
+    function showMessage(message, type) {
+      const className = type === 'error' ? 'error-message' : 'success-message';
+      elements.statusMessage.innerHTML = `<div class="${className}">${message}</div>`;
+    }
+
+    // Download handlers
+    elements.downloadPNG.addEventListener('click', async () => {
+      try {
+        const content = elements.content.value.trim();
+        if (!content) {
+          showMessage('Please enter some content', 'error');
+          return;
+        }
+
+        const options = buildOptions();
+        const dataURL = toPNGDataURL(content, options);
+        downloadFile(dataURL, 'qrcode.png');
+      } catch (error) {
+        showMessage(`Error: ${error.message}`, 'error');
+      }
+    });
+
+    elements.downloadSVG.addEventListener('click', async () => {
+      try {
+        const content = elements.content.value.trim();
+        if (!content) {
+          showMessage('Please enter some content', 'error');
+          return;
+        }
+
+        const options = buildOptions();
+        const svgString = toSVGString(content, options);
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        downloadFile(url, 'qrcode.svg');
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        showMessage(`Error: ${error.message}`, 'error');
+      }
+    });
+
+    // Build options object (shared by download handlers)
+    function buildOptions() {
+      const options = {
+        size: parseInt(elements.size.value),
+        margin: parseInt(elements.margin.value),
+        backgroundColor: elements.bgColorHex.value,
+        eyes: {
+          shape: elements.eyeShape.value,
+          color: elements.eyeColorHex.value
+        },
+        pupils: {
+          color: elements.pupilColorHex.value
+        },
+        dots: {
+          shape: elements.dotShape.value,
+          color: elements.dotColorHex.value,
+          scale: parseFloat(elements.dotScale.value)
+        }
+      };
+
+      if (elements.borderShape.value !== 'none') {
+        options.border = {
+          shape: elements.borderShape.value,
+          width: parseFloat(elements.borderWidth.value),
+          color: elements.borderColorHex.value,
+          style: elements.borderStyle.value
+        };
+      }
+
+      if (elements.enableLogo.checked && currentLogoDataURL) {
+        options.logo = {
+          src: currentLogoDataURL,
+          scale: parseFloat(elements.logoScale.value)
+        };
+      }
+
+      return options;
+    }
+
+    // Download helper
+    function downloadFile(url, filename) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Add event listeners to all inputs
+    elements.content.addEventListener('input', generateQR);
+    elements.eyeShape.addEventListener('change', generateQR);
+    elements.dotShape.addEventListener('change', generateQR);
+    elements.borderShape.addEventListener('change', generateQR);
+    elements.borderStyle.addEventListener('change', generateQR);
+
+    // Initial generation
+    generateQR();
+  </script>
+</body>
+</html>
