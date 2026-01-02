@@ -2,10 +2,8 @@
 
 A lightweight QR code generator with full TypeScript support. Generate QR codes as SVG, PNG, or ASCII with extensive customization options.
 
-[![npm version](https://img.shields.io/npm/v/qr-code-generator.svg)](https://www.npmjs.com/package/qr-code-generator)
+[![npm version](https://img.shields.io/npm/v/@tapple.io/qr-code-generator.svg)](https://www.npmjs.com/package/@tapple.io/qr-code-generator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![npm downloads](https://img.shields.io/npm/dm/qr-code-generator.svg)](https://www.npmjs.com/package/qr-code-generator)
-[![Bundle size](https://img.shields.io/bundlephobia/minzip/qr-code-generator)](https://bundlephobia.com/package/qr-code-generator)
 
 ## Features
 
