@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="Layer_1"
+   data-name="Layer 1"
+   viewBox="0 0 190.81039 190.825"
+   version="1.1"
+   sodipodi:docname="logo.svg"
+   width="190.81039"
+   height="190.825"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata82">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>tapple_logo_2019-05-08</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     id="namedview80"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="3.4845842"
+     inkscape:cx="95.518915"
+     inkscape:cy="87.925005"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Layer_1" />
+  <defs
+     id="defs73">
+    <style
+       id="style66">.cls-1{fill:url(#linear-gradient);}</style>
+    <linearGradient
+       id="linear-gradient"
+       x1="111.9"
+       y1="218.36"
+       x2="217.35001"
+       y2="67.220001"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-69.981085,-69)">
+      <stop
+         offset="0"
+         stop-color="#0ea9cb"
+         id="stop68" />
+      <stop
+         offset="1"
+         stop-color="#e13389"
+         id="stop70" />
+    </linearGradient>
+  </defs>
+  <title
+     id="title75">tapple_logo_2019-05-08</title>
+  <path
+     class="cls-1"
+     d="M 127.17892,0 H 63.678915 a 64,64 0 0 0 -6.95,0.39 26.06,26.06 0 0 0 5.66,51.499997 h 64.790005 a 11.79,11.79 0 0 1 0,23.58 h -20 V 127.18 a 11.79,11.79 0 1 1 -23.570005,0 V 75.449997 h -18.9 -2.35 A 49.72,49.72 0 0 1 12.728915,25.82 c 0,-0.1 0,-0.2 0,-0.3 a 63.6,63.6 0 0 0 19,93.21 v 8.43 a 63.665002,63.665002 0 0 0 127.330005,0 v -8.43 A 63.65,63.65 0 0 0 127.17892,0 Z"
+     id="path77"
+     inkscape:connector-curvature="0"
+     style="fill:url(#linear-gradient)" />
+</svg>
