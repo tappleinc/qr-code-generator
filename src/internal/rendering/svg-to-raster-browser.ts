@@ -30,11 +30,13 @@ export async function convertSvgToRaster(
 
     const img = new Image();
     let url: string | null = null;
-    
+
     try {
-      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const blob = new Blob([svgString], {
+        type: 'image/svg+xml;charset=utf-8',
+      });
       url = URL.createObjectURL(blob);
-    } catch (e) {
+    } catch {
       reject(new Error('Failed to create SVG blob for rasterization'));
       return;
     }

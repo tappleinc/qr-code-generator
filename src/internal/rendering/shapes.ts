@@ -688,10 +688,10 @@ export const BorderShapes: Record<string, ShapeDefinition> = {
 
         // Alpha for outer edge (how far inside outer boundary)
         const alphaOuter = clampAlpha(distOuter, pixelSize);
-        
+
         // Alpha for inner edge (inverted: 0 when inside inner box, 255 when outside)
         const alphaInner = 255 - clampAlpha(distInner, pixelSize);
-        
+
         return Math.min(alphaOuter, alphaInner);
       }
 

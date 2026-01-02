@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { genQrImage } from '../../src/index';
+import { genQrImage, BorderShape } from '../../src/index';
 import { EyeFrameShape, DotShape, ImageOptions } from '../../src/types';
 import { scanQRCode as scanQRHelper } from '../helpers/qr-scanner';
 
@@ -424,7 +424,7 @@ describe('QR Code Scannability', () => {
   describe('Border scannability', () => {
     it('should scan QR with circle border', async () => {
       const result = await scanQRCode('CircleBorder', {
-        border: { shape: 'circle' as any, width: 30 },
+        border: { shape: BorderShape.CIRCLE, width: 30 },
         margin: 10
       });
       
@@ -438,7 +438,7 @@ describe('QR Code Scannability', () => {
     
     it('should scan QR with border and minimal margin', async () => {
       const result = await scanQRCode('MinimalMargin', {
-        border: { shape: 'circle' as any, width: 20 },
+        border: { shape: BorderShape.CIRCLE, width: 20 },
         margin: 5
       });
       
@@ -452,7 +452,7 @@ describe('QR Code Scannability', () => {
     
     it('should scan QR with squircle border', async () => {
       const result = await scanQRCode('SquircleBorder', {
-        border: { shape: 'squircle' as any, width: 25 },
+        border: { shape: BorderShape.SQUIRCLE, width: 25 },
         margin: 8
       });
       

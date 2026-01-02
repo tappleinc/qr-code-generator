@@ -15,10 +15,7 @@ import {
   BorderStyle,
   OutputConfig,
 } from '../../types';
-import {
-  validateImageOptions,
-  validateTextOptions,
-} from './validation';
+import { validateImageOptions, validateTextOptions } from './validation';
 
 // ============================================================================
 // Default Values - Image Rendering (PNG/SVG)

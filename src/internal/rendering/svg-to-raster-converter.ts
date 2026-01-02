@@ -13,7 +13,9 @@
 import { MergedImageOptions } from '../core/defaults';
 
 export async function convertSvgToRaster(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _svgString: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _options: MergedImageOptions
 ): Promise<string | Buffer | Uint8Array> {
   throw new Error(

@@ -26,7 +26,9 @@ export class QRValidationError extends Error {
   public errors: ValidationError[];
 
   constructor(errors: ValidationError[]) {
-    const errorList = errors.map((e) => `  - ${e.field}: ${e.message}`).join('\n');
+    const errorList = errors
+      .map((e) => `  - ${e.field}: ${e.message}`)
+      .join('\n');
     super(`QR Code validation failed:\n${errorList}`);
     this.name = 'QRValidationError';
     this.errors = errors;
@@ -179,7 +181,13 @@ export function validateImageOptions(options: ImageOptions): void {
     }
   }
   if (options.border?.width !== undefined) {
-    const err = validateNumber(options.border.width, 'border.width', 0, null, true);
+    const err = validateNumber(
+      options.border.width,
+      'border.width',
+      0,
+      null,
+      true
+    );
     if (err) errors.push(err);
   }
   if (options.border?.color !== undefined) {

@@ -19,10 +19,7 @@ import {
   REMAINDER_BITS,
   getQRSize,
 } from './internal/core/constants';
-import {
-  mergeImageOptions,
-  mergeTextOptions,
-} from './internal/core/defaults';
+import { mergeImageOptions, mergeTextOptions } from './internal/core/defaults';
 import {
   encodeData,
   calculateMinVersion,
