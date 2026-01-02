@@ -1,6 +1,6 @@
 # Tapple QR Code Generator - Interactive Demo
 
-This demo showcases all the customization options available in the `qr-code-generator` library.
+This demo showcases all the customization options available in the `@tapple.io/qr-code-generator` library.
 
 ## Running the Demo
 

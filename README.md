@@ -18,7 +18,7 @@ A lightweight QR code generator with full TypeScript support. Generate QR codes 
 ## Installation
 
 ```bash
-npm install qr-code-generator
+npm install @tapple.io/qr-code-generator
 ```
 
 That's it! The package automatically provides platform-optimized bundles:
@@ -33,7 +33,7 @@ That's it! The package automatically provides platform-optimized bundles:
 The following examples work universally in both Node.js and browsers:
 
 ```typescript
-import { genQrImage, genQrText } from 'qr-code-generator';
+import { genQrImage, genQrText } from '@tapple.io/qr-code-generator';
 
 // Generate PNG buffer (default)
 const pngBuffer = await genQrImage('https://tapple.io');
@@ -63,7 +63,7 @@ console.log(ascii);
 #### Saving to File (Node.js)
 
 ```typescript
-import { genQrImage } from 'qr-code-generator';
+import { genQrImage } from '@tapple.io/qr-code-generator';
 import fs from 'fs';
 
 // Save PNG to file
@@ -82,7 +82,7 @@ fs.writeFileSync('qrcode.svg', svg);
 #### Using in HTML (Browser)
 
 ```typescript
-import { genQrImage } from 'qr-code-generator';
+import { genQrImage } from '@tapple.io/qr-code-generator';
 
 // Display PNG as image (returns dataURL string)
 const img = document.getElementById('qr-image');
@@ -148,7 +148,7 @@ const ascii = genQrText('Hello', {
 ### Image Options (PNG & SVG)
 
 ```typescript
-import { genQrImage, EyeFrameShape, DotShape, BorderShape } from 'qr-code-generator';
+import { genQrImage, EyeFrameShape, DotShape, BorderShape } from '@tapple.io/qr-code-generator';
 
 const options = {
   size: 300,                    // QR matrix size in pixels  
@@ -335,7 +335,7 @@ const qr = await genQrImage('https://tapple.io');
 Import shape enums for type-safe customization:
 
 ```typescript
-import { EyeFrameShape, DotShape, BorderShape, BorderStyle } from 'qr-code-generator';
+import { EyeFrameShape, DotShape, BorderShape, BorderStyle } from '@tapple.io/qr-code-generator';
 
 // Eye shapes
 EyeFrameShape.SQUARE
@@ -362,7 +362,7 @@ BorderStyle.DASHED
 ### Custom Styled QR Code
 
 ```typescript
-import { genQrImage, EyeFrameShape, DotShape, BorderShape } from 'qr-code-generator';
+import { genQrImage, EyeFrameShape, DotShape, BorderShape } from '@tapple.io/qr-code-generator';
 
 const styledQR = await genQrImage('https://tapple.io', {
   size: 500,
@@ -393,7 +393,7 @@ const styledQR = await genQrImage('https://tapple.io', {
 ### QR Code with Logo
 
 ```typescript
-import { genQrImage } from 'qr-code-generator';
+import { genQrImage } from '@tapple.io/qr-code-generator';
 import fs from 'fs';
 
 // Load logo as data URL
@@ -415,7 +415,7 @@ const qr = await genQrImage('https://tapple.io', {
 ### Via Module Bundler (Recommended)
 
 ```typescript
-import { genQrImage } from 'qr-code-generator';
+import { genQrImage } from '@tapple.io/qr-code-generator';
 
 const qr = await genQrImage('https://tapple.io', {
   output: { format: 'png', type: 'dataURL' }
@@ -427,7 +427,7 @@ document.querySelector('#qr-image').src = qr;
 
 ```html
 <script type="module">
-  import { genQrImage } from 'https://cdn.jsdelivr.net/npm/qr-code-generator/+esm';
+  import { genQrImage } from 'https://cdn.jsdelivr.net/npm/@tapple.io/qr-code-generator/+esm';
   
   const qr = await genQrImage('https://tapple.io', {
     output: { format: 'png', type: 'dataURL' }
@@ -451,7 +451,7 @@ document.querySelector('#qr-image').src = qr;
 Full TypeScript support with comprehensive type definitions:
 
 ```typescript
-import type { ImageOptions, QRInput, VCardData, OutputConfig } from 'qr-code-generator';
+import type { ImageOptions, QRInput, VCardData, OutputConfig } from '@tapple.io/qr-code-generator';
 
 const options: ImageOptions = {
   size: 400,
@@ -559,7 +559,7 @@ Then open [http://localhost:8080/demo/](http://localhost:8080/demo/) in your bro
 
 **Quick try without cloning:**
 
-You can also experiment using online playgrounds like [CodeSandbox](https://codesandbox.io) or [StackBlitz](https://stackblitz.com) by creating a new project and installing `qr-code-generator`.
+You can also experiment using online playgrounds like [CodeSandbox](https://codesandbox.io) or [StackBlitz](https://stackblitz.com) by creating a new project and installing `@tapple.io/qr-code-generator`.
 
 ## License
 
