@@ -319,18 +319,53 @@ const TEST_MATRIX = [
   },
   {
     category: 'logo',
-    name: 'svg-default',
+    name: 'svg-dataurl-default',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: svgToDataURL(DEMO_LOGO_SVG),
+      },
+    },
+    description: 'SVG data URL logo with default scale (20%)',
+  },
+  {
+    category: 'logo',
+    name: 'svg-dataurl-small',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: svgToDataURL(DEMO_LOGO_SVG),
+        scale: 0.15,
+      },
+    },
+    description: 'SVG data URL logo scaled to 15%',
+  },
+  {
+    category: 'logo',
+    name: 'svg-dataurl-large',
+    input: 'Logo Test',
+    options: {
+      logo: {
+        src: svgToDataURL(DEMO_LOGO_SVG),
+        scale: 0.3,
+      },
+    },
+    description: 'SVG data URL logo scaled to 30% (max)',
+  },
+  {
+    category: 'logo',
+    name: 'svg-string-default',
     input: 'Logo Test',
     options: {
       logo: {
         src: svgToString(DEMO_LOGO_SVG),
       },
     },
-    description: 'SVG logo with default scale (20%)',
+    description: 'SVG raw string logo with default scale (20%)',
   },
   {
     category: 'logo',
-    name: 'svg-small',
+    name: 'svg-string-small',
     input: 'Logo Test',
     options: {
       logo: {
@@ -338,11 +373,11 @@ const TEST_MATRIX = [
         scale: 0.15,
       },
     },
-    description: 'SVG logo scaled to 15%',
+    description: 'SVG raw string logo scaled to 15%',
   },
   {
     category: 'logo',
-    name: 'svg-large',
+    name: 'svg-string-large',
     input: 'Logo Test',
     options: {
       logo: {
@@ -350,7 +385,7 @@ const TEST_MATRIX = [
         scale: 0.3,
       },
     },
-    description: 'SVG logo scaled to 30% (max)',
+    description: 'SVG raw string logo scaled to 30% (max)',
   },
   {
     category: 'logo',
@@ -455,6 +490,12 @@ function pngToDataURL(filePath) {
 
 function svgToString(filePath) {
   return readFileSync(filePath, 'utf8');
+}
+
+function svgToDataURL(filePath) {
+  const svgString = readFileSync(filePath, 'utf8');
+  const base64 = Buffer.from(svgString).toString('base64');
+  return `data:image/svg+xml;base64,${base64}`;
 }
 
 function openBrowser(filePath) {

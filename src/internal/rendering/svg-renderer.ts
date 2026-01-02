@@ -78,14 +78,34 @@ function renderLogoSVG(
     // For SVG logos, embed directly with proper scaling
     let svgContent = logoSrc;
     if (logoSrc.includes('data:image/svg')) {
-      // Extract SVG from data URL
-      const base64Match = logoSrc.match(/data:image\/svg\+xml[^,]*,(.+)/);
-      if (base64Match) {
-        try {
-          svgContent = decodeURIComponent(base64Match[1]);
-        } catch {
-          // If decoding fails, skip logo
-          return '';
+      // Extract SVG from data URL (handle both base64 and URL-encoded)
+      const dataUrlMatch = logoSrc.match(/data:image\/svg\+xml[^,]*,(.+)/);
+      if (dataUrlMatch) {
+        const encodedData = dataUrlMatch[1];
+        // Check if it's base64 encoded
+        if (logoSrc.includes('base64')) {
+          try {
+            // Use atob for browser compatibility, fallback to Buffer for Node.js
+            if (typeof atob !== 'undefined') {
+              svgContent = atob(encodedData);
+            } else if (typeof Buffer !== 'undefined') {
+              svgContent = Buffer.from(encodedData, 'base64').toString('utf-8');
+            } else {
+              // Neither available, skip logo
+              return '';
+            }
+          } catch {
+            // If base64 decoding fails, skip logo
+            return '';
+          }
+        } else {
+          // URL-encoded
+          try {
+            svgContent = decodeURIComponent(encodedData);
+          } catch {
+            // If URL decoding fails, skip logo
+            return '';
+          }
         }
       }
     }
@@ -95,7 +115,8 @@ function renderLogoSVG(
     const viewBox = viewBoxMatch ? viewBoxMatch[1] : '0 0 100 100';
 
     // Extract xmlns declarations from original SVG tag to preserve namespaces
-    const svgTagMatch = svgContent.match(/<svg([^>]*)>/i);
+    // Use [\s\S] to match across multiple lines
+    const svgTagMatch = svgContent.match(/<svg([\s\S]*?)>/i);
     let namespaceAttrs = '';
     if (svgTagMatch) {
       // Extract all xmlns attributes
@@ -106,8 +127,9 @@ function renderLogoSVG(
     }
 
     // Remove XML declaration and SVG tags, keeping only the content
+    // Use [\s\S] to match across multiple lines
     const innerContent = svgContent.replace(
-      /<\?xml[^>]*>|<svg[^>]*>|<\/svg>/gi,
+      /<\?xml[^>]*>|<svg[\s\S]*?>|<\/svg>/gi,
       ''
     );
 
