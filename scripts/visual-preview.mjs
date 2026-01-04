@@ -574,6 +574,10 @@ async function generateBrowserOutputs(testCases, outputDir) {
   const context = await browser.newContext();
   const page = await context.newPage();
   
+  // NOTE: Port 3001 kept in sync with playwright.config.ts to avoid conflicts.
+  // While route interception handles all content delivery, page.goto() still
+  // attempts an initial connection. Using a clean, consistent port prevents
+  // conflicts with other serve processes that may be running on port 3000.
   // Intercept all requests BEFORE navigating
   await page.route('**/*', async route => {
     const url = route.request().url();
@@ -586,7 +590,7 @@ async function generateBrowserOutputs(testCases, outputDir) {
         contentType: 'application/javascript; charset=utf-8',
         body: content,
       });
-    } else if (url === 'http://localhost:3000/' || url === 'http://localhost:3000') {
+    } else if (url === 'http://localhost:3001/' || url === 'http://localhost:3001') {
       // Serve the HTML page
       const testHtml = `
 <!DOCTYPE html>
@@ -614,7 +618,7 @@ async function generateBrowserOutputs(testCases, outputDir) {
   });
   
   // Now navigate
-  await page.goto('http://localhost:3000/');
+  await page.goto('http://localhost:3001/');
   await page.waitForFunction(() => window.ready, { timeout: 10000 });
   
   for (const test of testCases) {

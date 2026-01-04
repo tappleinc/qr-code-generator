@@ -23,7 +23,7 @@ export default defineConfig({
   reporter: 'list',
   
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
   },
 
@@ -32,8 +32,8 @@ export default defineConfig({
   preserveOutput: 'never',
 
   webServer: {
-    command: 'npx serve . -l 3000 --no-port-switching',
-    port: 3000,
+    command: 'npx serve . -l 3001 --no-port-switching',
+    port: 3001,
     reuseExistingServer: !process.env.CI,
   },
 

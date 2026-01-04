@@ -26,7 +26,7 @@ That's it! The package automatically provides platform-optimized bundles:
 - **Browser**: Zero dependencies - uses native Canvas API
 - **Node.js**: One dependency (`@resvg/resvg-js`) - installed automatically
 
-**Why this matters:** Most QR libraries bundle heavy dependencies (~2.5MB) that work everywhere but bloat browser bundles. We use environment-specific implementations - Canvas API in browsers (built-in) and `@resvg/resvg-js` in Node.js (acceptable for server environments) - automatically delivering the optimal bundle for your platform.
+**Why this matters:** Many QR libraries bundle heavy dependencies (2MB+) that work everywhere but bloat browser bundles. We use environment-specific implementations - Canvas API in browsers (built-in) and `@resvg/resvg-js` in Node.js - automatically delivering the optimal solution for your platform.
 
 ## Quick Start
 
@@ -67,13 +67,13 @@ import { genQrImage } from '@tapple.io/qr-code-generator';
 import fs from 'fs';
 
 // Save PNG to file
-const buffer = await genQrImage('https://tapple.io', {
+const buffer = await genQrImage('https://www.qrcode.com/en/history/', {
   output: { format: 'png', type: 'buffer' }
 });
 fs.writeFileSync('qrcode.png', buffer);
 
 // Save SVG to file
-const svg = await genQrImage('https://tapple.io', {
+const svg = await genQrImage('https://www.qrcode.com/en/history/', {
   output: { format: 'svg', type: 'string' }
 });
 fs.writeFileSync('qrcode.svg', svg);
@@ -86,12 +86,12 @@ import { genQrImage } from '@tapple.io/qr-code-generator';
 
 // Display PNG as image (returns dataURL string)
 const img = document.getElementById('qr-image');
-img.src = await genQrImage('https://tapple.io', {
+img.src = await genQrImage('https://www.qrcode.com/en/history/', {
   output: { format: 'png', type: 'dataURL' }
 });
 
 // Or use SVG data URL
-img.src = await genQrImage('https://tapple.io', {
+img.src = await genQrImage('https://www.qrcode.com/en/history/', {
   output: { format: 'svg', type: 'dataURL' }
 });
 ```
@@ -112,21 +112,21 @@ Generates a QR code image. Returns a Promise that resolves to the output format 
 
 ```typescript
 // Default: PNG buffer
-const buffer = await genQrImage('https://tapple.io');
+const buffer = await genQrImage('https://en.wikipedia.org/wiki/QR_code');
 
 // PNG data URL
-const dataURL = await genQrImage('https://tapple.io', {
+const dataURL = await genQrImage('https://en.wikipedia.org/wiki/QR_code', {
   size: 400,
   output: { format: 'png', type: 'dataURL' }
 });
 
 // SVG string
-const svg = await genQrImage('https://tapple.io', {
+const svg = await genQrImage('https://en.wikipedia.org/wiki/QR_code', {
   output: { format: 'svg', type: 'string' }
 });
 
 // SVG data URL
-const svgDataURL = await genQrImage('https://tapple.io', {
+const svgDataURL = await genQrImage('https://en.wikipedia.org/wiki/QR_code', {
   output: { format: 'svg', type: 'dataURL' }
 });
 ```
@@ -194,7 +194,7 @@ const options = {
   }
 };
 
-const qr = await genQrImage('https://tapple.io', options);
+const qr = await genQrImage('https://en.wikipedia.org/wiki/QR_code', options);
 ```
 
 ### ImageOptions Reference
@@ -323,11 +323,11 @@ const phoneQR = await genQrImage({
 ```typescript
 const qr = await genQrImage({
   type: 'url',
-  url: 'https://tapple.io'
+  url: 'https://en.wikipedia.org/wiki/Denso'
 });
 
 // Or just pass the URL directly:
-const qr = await genQrImage('https://tapple.io');
+const qr = await genQrImage('https://en.wikipedia.org/wiki/Denso');
 ```
 
 ## Shape Enums
@@ -364,7 +364,7 @@ BorderStyle.DASHED
 ```typescript
 import { genQrImage, EyeFrameShape, DotShape, BorderShape } from '@tapple.io/qr-code-generator';
 
-const styledQR = await genQrImage('https://tapple.io', {
+const styledQR = await genQrImage('https://en.wikipedia.org/wiki/Denso', {
   size: 500,
   margin: 30,
   backgroundColor: '#f8f9fa',
@@ -400,7 +400,7 @@ import fs from 'fs';
 const logoBuffer = fs.readFileSync('logo.png');
 const logoDataURL = `data:image/png;base64,${logoBuffer.toString('base64')}`;
 
-const qr = await genQrImage('https://tapple.io', {
+const qr = await genQrImage('https://en.wikipedia.org/wiki/QR_code', {
   size: 400,
   logo: {
     src: logoDataURL,
@@ -417,7 +417,7 @@ const qr = await genQrImage('https://tapple.io', {
 ```typescript
 import { genQrImage } from '@tapple.io/qr-code-generator';
 
-const qr = await genQrImage('https://tapple.io', {
+const qr = await genQrImage('https://en.wikipedia.org/wiki/QR_code', {
   output: { format: 'png', type: 'dataURL' }
 });
 document.querySelector('#qr-image').src = qr;
@@ -473,15 +473,6 @@ const input: QRInput = {
 - **No DOM dependency** - Works in Node.js, browsers, and Web Workers
 - **Fast execution** - Optimized algorithms for matrix generation and mask selection
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## Development
 
@@ -544,7 +535,7 @@ The library includes comprehensive test coverage:
 The demo showcases real-time QR code generation with all available options including colors, shapes, borders, logos, and more.
 
 **Try it locally:**
-
+va
 ```bash
 # Clone the repository
 git clone https://github.com/tappleinc/qr-code-generator.git
@@ -573,4 +564,4 @@ MIT © [Tapple Inc.](https://github.com/tappleinc)
 
 ---
 
-Made with ❤️ by [Tapple Inc.](https://tappleinc.com)
+Made with ❤️ by [Tapple.io](https://tapple.io)

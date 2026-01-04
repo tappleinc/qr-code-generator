@@ -34,6 +34,7 @@ import { renderSVGString } from './internal/rendering/svg-renderer';
 import { renderASCIIString } from './internal/rendering/ascii-renderer';
 import { handleOutput } from './internal/rendering/output-handler';
 import { formatQRInput } from './internal/encoding/formatters';
+import { validateQRInput } from './internal/core/validation';
 
 // ============================================================================
 // Internal QR Code Generation
@@ -150,17 +151,20 @@ export async function genQrImage(
   input: QRInput,
   options?: ImageOptions
 ): Promise<string | Buffer | Uint8Array> {
-  // 1. Format input and merge options (Single Authority pattern)
+  // 1. Validate input before formatting
+  validateQRInput(input);
+
+  // 2. Format input and merge options (Single Authority pattern)
   const text = formatQRInput(input);
   const mergedOptions = mergeImageOptions(options);
 
-  // 2. Generate QR matrix
+  // 3. Generate QR matrix
   const qrCodeConfig = buildQRCodeConfig(text, !!mergedOptions.logo);
 
-  // 3. Phase 1: Always generate SVG first
+  // 4. Phase 1: Always generate SVG first
   const svgString = renderSVGString(qrCodeConfig, mergedOptions);
 
-  // 4. Phase 2: Handle output format (async)
+  // 5. Phase 2: Handle output format (async)
   return await handleOutput(svgString, mergedOptions);
 }
 
@@ -171,6 +175,9 @@ export async function genQrImage(
  * @returns ASCII string representation
  */
 export function genQrText(input: QRInput, options?: TextOptions): string {
+  // 1. Validate input before formatting
+  validateQRInput(input);
+
   const text = formatQRInput(input);
   const mergedOptions = mergeTextOptions(options);
   const qrCodeConfig = buildQRCodeConfig(text, false);
