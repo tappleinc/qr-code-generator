@@ -13,7 +13,7 @@ import { validatePNGBuffer, validateSVGString, validateSVGDataURL, validatePNGDa
 /**
  * Test module exports presence
  */
-export function testModuleExports(module: any): void {
+export function testModuleExports(module: Record<string, unknown>): void {
   expect(module.genQrImage).toBeDefined();
   expect(typeof module.genQrImage).toBe('function');
   
@@ -29,7 +29,7 @@ export function testModuleExports(module: any): void {
 /**
  * Test SVG generation
  */
-export async function testSVGGeneration(genQrImage: Function): Promise<void> {
+export async function testSVGGeneration(genQrImage: (input: string, options?: Record<string, unknown>) => Promise<string | Buffer | Uint8Array>): Promise<void> {
   // Test SVG string
   const svg = await genQrImage('Hello World', {
     output: { format: 'svg', type: 'string' }
@@ -50,7 +50,7 @@ export async function testSVGGeneration(genQrImage: Function): Promise<void> {
 /**
  * Test PNG generation
  */
-export async function testPNGGeneration(genQrImage: Function): Promise<void> {
+export async function testPNGGeneration(genQrImage: (input: string, options?: Record<string, unknown>) => Promise<string | Buffer | Uint8Array>): Promise<void> {
   // Test PNG buffer
   const buffer = await genQrImage('Hello World', {
     size: 500,
@@ -74,7 +74,7 @@ export async function testPNGGeneration(genQrImage: Function): Promise<void> {
 /**
  * Test PNG scannability with jsQR
  */
-export async function testPNGScannability(genQrImage: Function, testData: string): Promise<void> {
+export async function testPNGScannability(genQrImage: (input: string, options?: Record<string, unknown>) => Promise<string | Buffer | Uint8Array>, testData: string): Promise<void> {
   const buffer = await genQrImage(testData, {
     size: 1000,
     output: { format: 'png', type: 'buffer' }
@@ -96,7 +96,7 @@ export async function testPNGScannability(genQrImage: Function, testData: string
 /**
  * Test ASCII generation
  */
-export function testASCIIGeneration(genQrText: Function): void {
+export function testASCIIGeneration(genQrText: (input: string, options?: Record<string, unknown>) => string): void {
   const ascii = genQrText('Hello World');
 
   expect(typeof ascii).toBe('string');

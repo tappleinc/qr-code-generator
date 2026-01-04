@@ -5,7 +5,14 @@
  * Prevents runtime errors and ensures safe parameter values.
  */
 
-import { ImageOptions, TextOptions, WiFiData, VCardData, CalendarData, QRInput } from '../../types';
+import {
+  ImageOptions,
+  TextOptions,
+  WiFiData,
+  VCardData,
+  CalendarData,
+  QRInput,
+} from '../../types';
 import { EyeFrameShapes, DotShapes, BorderShapes } from '../rendering/shapes';
 
 // ============================================================================
@@ -115,7 +122,8 @@ function validateLogoSrc(value: string, field: string): ValidationError | null {
     return {
       field,
       value: '[truncated]',
-      message: 'must be a data URL (data:image/...;base64,...) or SVG string (<svg...)',
+      message:
+        'must be a data URL (data:image/...;base64,...) or SVG string (<svg...)',
     };
   }
 
@@ -390,7 +398,8 @@ export function validateQRInput(input: unknown): void {
     errors.push({
       field: 'input',
       value: input,
-      message: 'must be a string or structured content object with a type property',
+      message:
+        'must be a string or structured content object with a type property',
     });
     throw new QRValidationError(errors);
   }
@@ -437,7 +446,8 @@ export function validateQRInput(input: unknown): void {
       errors.push({
         field: 'input.type',
         value: inputWithType.type,
-        message: 'must be one of: url, vcard, wifi, calendar, email, sms, phone',
+        message:
+          'must be one of: url, vcard, wifi, calendar, email, sms, phone',
       });
   }
 
@@ -483,7 +493,12 @@ function validateWiFiData(data: unknown, errors: ValidationError[]): void {
 
   // Validate encryption type
   if (wifi.encryption !== undefined) {
-    const validEncryption: Array<WiFiData['encryption']> = ['WPA', 'WPA2', 'WEP', 'nopass'];
+    const validEncryption: Array<WiFiData['encryption']> = [
+      'WPA',
+      'WPA2',
+      'WEP',
+      'nopass',
+    ];
     if (!validEncryption.includes(wifi.encryption)) {
       errors.push({
         field: 'wifi.encryption',
@@ -590,7 +605,11 @@ function validateCalendarData(data: unknown, errors: ValidationError[]): void {
   const calendar = data as Partial<CalendarData>;
 
   // Validate required title
-  if (!calendar.title || typeof calendar.title !== 'string' || !calendar.title.trim()) {
+  if (
+    !calendar.title ||
+    typeof calendar.title !== 'string' ||
+    !calendar.title.trim()
+  ) {
     errors.push({
       field: 'calendar.title',
       value: calendar.title,
@@ -633,8 +652,12 @@ function validateCalendarData(data: unknown, errors: ValidationError[]): void {
 function validateEmailInput(input: object, errors: ValidationError[]): void {
   // Use Partial since we're validating potentially incomplete data
   const data = input as Partial<Extract<QRInput, { type: 'email' }>>;
-  
-  if (!data.email || typeof data.email !== 'string' || !isValidEmail(data.email)) {
+
+  if (
+    !data.email ||
+    typeof data.email !== 'string' ||
+    !isValidEmail(data.email)
+  ) {
     errors.push({
       field: 'email.email',
       value: data.email,
@@ -665,8 +688,12 @@ function validateEmailInput(input: object, errors: ValidationError[]): void {
 function validateSMSInput(input: object, errors: ValidationError[]): void {
   // Use Partial since we're validating potentially incomplete data
   const data = input as Partial<Extract<QRInput, { type: 'sms' }>>;
-  
-  if (!data.phone || typeof data.phone !== 'string' || !isValidPhone(data.phone)) {
+
+  if (
+    !data.phone ||
+    typeof data.phone !== 'string' ||
+    !isValidPhone(data.phone)
+  ) {
     errors.push({
       field: 'sms.phone',
       value: data.phone,
@@ -689,8 +716,12 @@ function validateSMSInput(input: object, errors: ValidationError[]): void {
 function validatePhoneInput(input: object, errors: ValidationError[]): void {
   // Use Partial since we're validating potentially incomplete data
   const data = input as Partial<Extract<QRInput, { type: 'phone' }>>;
-  
-  if (!data.phone || typeof data.phone !== 'string' || !isValidPhone(data.phone)) {
+
+  if (
+    !data.phone ||
+    typeof data.phone !== 'string' ||
+    !isValidPhone(data.phone)
+  ) {
     errors.push({
       field: 'phone.phone',
       value: data.phone,
@@ -705,7 +736,7 @@ function validatePhoneInput(input: object, errors: ValidationError[]): void {
 function validateURLInput(input: object, errors: ValidationError[]): void {
   // Use Partial since we're validating potentially incomplete data
   const data = input as Partial<Extract<QRInput, { type: 'url' }>>;
-  
+
   if (!data.url || typeof data.url !== 'string' || !isValidURL(data.url)) {
     errors.push({
       field: 'url.url',
