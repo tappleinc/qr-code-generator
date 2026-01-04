@@ -5,6 +5,8 @@ A lightweight QR code generator with full TypeScript support. Generate QR codes 
 [![npm version](https://img.shields.io/npm/v/@tapple.io/qr-code-generator.svg)](https://www.npmjs.com/package/@tapple.io/qr-code-generator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+**[🎨 Try the Interactive Demo →](https://tappleinc.github.io/qr-code-generator/demo/)**
+
 ## Features
 
 - 🚀 **Platform-optimized architecture** - Zero browser dependencies (native Canvas API) + one Node.js dependency (`@resvg/resvg-js`)

@@ -396,16 +396,16 @@ function isDashPositionSquare(
 /**
  * Corner radius ratio for squircle borders (relative to total size)
  *
- * Value: 0.12 = 12% of size
- * Example: For a 300px QR code, corner radius = 36px
+ * Value: 0.09 = 9% of size
+ * Example: For a 300px QR code, corner radius = 27px
  *
  * Rationale:
- * - Chosen to match iOS/Material Design "slightly rounded" aesthetic
- * - Provides visual softness without compromising scannability
- * - Range 0.10-0.15 provides optimal balance between roundness and clarity
- * - Values <0.10 appear too sharp, >0.15 risk scanner misreads at corners
+ * - Chosen to visually match the eye frame squircle roundness
+ * - Eye frames use Bezier control point at 0.90909, giving ~9% effective radius
+ * - Provides visual consistency across all squircle elements
+ * - Maintains scannability while creating cohesive rounded aesthetic
  */
-export const SQUIRCLE_CORNER_RADIUS_RATIO = 0.12;
+export const SQUIRCLE_CORNER_RADIUS_RATIO = 0.09;
 
 /**
  * Bezier control point coefficients for squircle shapes

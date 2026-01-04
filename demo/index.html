@@ -152,9 +152,8 @@
     }
 
     .qr-display img {
-      width: 300px;
-      height: 300px;
-      image-rendering: pixelated;
+      max-width: 250px;
+      max-height: 250px; 
     }
 
     .download-buttons {
@@ -353,25 +352,23 @@
           <div class="form-group">
             <label for="eyeShape">Eye Frame Shape</label>
             <select id="eyeShape">
-              <option value="square" selected>Square</option>
-              <option value="squircle">Squircle</option>
-              <option value="diagonal-filet-square">Diagonal Filet Square</option>
+              <option value="square">Square</option>
+              <option value="squircle" selected>Squircle</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="dotShape">Dot Shape</label>
             <select id="dotShape">
-              <option value="classic" selected>Classic</option>
+              <option value="classic">Classic</option>
               <option value="dots">Dots (rounded)</option>
-              <option value="square">Square</option>
-              <option value="diagonal-filet-square">Diagonal Filet Square</option>
+              <option value="square" selected>Square</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="dotScale">Dot Scale: <span id="dotScaleValue">1.0</span></label>
-            <input type="range" id="dotScale" min="0.75" max="1.25" value="1.0" step="0.05">
+            <label for="dotScale">Dot Scale: <span id="dotScaleValue">1.15</span></label>
+            <input type="range" id="dotScale" min="0.75" max="1.25" value="1.15" step="0.05">
             <div class="info-text">Adjusts visual size of dots (0.75-1.25)</div>
           </div>
         </div>
@@ -382,9 +379,9 @@
           <div class="form-group">
             <label for="borderShape">Border Shape</label>
             <select id="borderShape">
-              <option value="none" selected>None</option>
+              <option value="none">None</option>
               <option value="square">Square</option>
-              <option value="squircle">Squircle</option>
+              <option value="squircle" selected>Squircle</option>
               <option value="circle">Circle</option>
             </select>
           </div>
@@ -398,8 +395,8 @@
           </div>
 
           <div class="form-group">
-            <label for="borderWidth">Border Width: <span id="borderWidthValue">10</span>px</label>
-            <input type="range" id="borderWidth" min="0" max="50" value="10" step="1">
+            <label for="borderWidth">Border Width: <span id="borderWidthValue">6</span>px</label>
+            <input type="range" id="borderWidth" min="0" max="50" value="6" step="1">
             <div class="info-text">Border thickness in pixels (0-50)</div>
           </div>
 
@@ -450,8 +447,9 @@
   </div>
 
   <script type="module">
-    // Import from built package
-    import { toPNGDataURL, toSVGDataURL, toSVGString } from '../dist/index.mjs';
+    // Import from CDN for GitHub Pages deployment
+    // For local development, you can use: '../dist/browser.mjs'
+    import { genQrImage } from 'https://unpkg.com/@tapple.io/qr-code-generator/dist/browser.mjs'; //'../dist/browser.mjs';
 
     // Constants
     const PREVIEW_SIZE = 300; // Fixed preview size for performance
@@ -621,13 +619,13 @@
           };
         }
 
-        // Generate QR code based on current format
-        let dataURL;
-        if (currentFormat === 'png') {
-          dataURL = toPNGDataURL(content, options);
-        } else {
-          dataURL = toSVGDataURL(content, options);
-        }
+        // Generate QR code based on current format using v0.9.4 API
+        options.output = {
+          format: currentFormat, // 'png' or 'svg'
+          type: 'dataURL'
+        };
+
+        const dataURL = await genQrImage(content, options);
 
         // Display QR code
         elements.qrDisplay.innerHTML = `<img src="${dataURL}" alt="Generated QR Code">`;
@@ -653,7 +651,8 @@
         }
 
         const options = buildOptions();
-        const dataURL = toPNGDataURL(content, options);
+        options.output = { format: 'png', type: 'dataURL' };
+        const dataURL = await genQrImage(content, options);
         downloadFile(dataURL, 'qrcode.png');
       } catch (error) {
         showMessage(`Error: ${error.message}`, 'error');
@@ -669,7 +668,8 @@
         }
 
         const options = buildOptions();
-        const svgString = toSVGString(content, options);
+        options.output = { format: 'svg', type: 'string' };
+        const svgString = await genQrImage(content, options);
         const blob = new Blob([svgString], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(blob);
         downloadFile(url, 'qrcode.svg');
