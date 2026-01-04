@@ -624,12 +624,6 @@ END:VCALENDAR`
       });
     }
 
-    syncColorInputs(elements.bgColor, elements.bgColorHex);
-    syncColorInputs(elements.eyeColor, elements.eyeColorHex);
-    syncColorInputs(elements.pupilColor, elements.pupilColorHex);
-    syncColorInputs(elements.dotColor, elements.dotColorHex);
-    syncColorInputs(elements.borderColor, elements.borderColorHex);
-
     // Example link handlers
     document.querySelectorAll('.example-link').forEach(link => {
       link.addEventListener('click', (e) => {
@@ -871,6 +865,13 @@ END:VCALENDAR`
     elements.dotShape.addEventListener('change', generateQR);
     elements.borderShape.addEventListener('change', generateQR);
     elements.borderStyle.addEventListener('change', generateQR);
+
+    // Set up color input synchronization (must be after generateQR is defined)
+    syncColorInputs(elements.bgColor, elements.bgColorHex);
+    syncColorInputs(elements.eyeColor, elements.eyeColorHex);
+    syncColorInputs(elements.pupilColor, elements.pupilColorHex);
+    syncColorInputs(elements.dotColor, elements.dotColorHex);
+    syncColorInputs(elements.borderColor, elements.borderColorHex);
 
     // Initial generation
     generateQR();
