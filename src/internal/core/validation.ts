@@ -52,37 +52,41 @@ export class QRValidationError extends Error {
  */
 function normalizeImageOptions(options: ImageOptions): ImageOptions {
   const normalized: ImageOptions = { ...options };
-  
+
   if (normalized.backgroundColor === '') {
     normalized.backgroundColor = undefined;
   }
-  
+
   if (normalized.eyes) {
     normalized.eyes = { ...normalized.eyes };
-    if ((normalized.eyes.shape as any) === '') normalized.eyes.shape = undefined;
+    if ((normalized.eyes.shape as unknown) === '')
+      normalized.eyes.shape = undefined;
     if (normalized.eyes.color === '') normalized.eyes.color = undefined;
   }
-  
+
   if (normalized.pupils) {
     normalized.pupils = { ...normalized.pupils };
     if (normalized.pupils.color === '') normalized.pupils.color = undefined;
   }
-  
+
   if (normalized.dots) {
     normalized.dots = { ...normalized.dots };
-    if ((normalized.dots.shape as any) === '') normalized.dots.shape = undefined;
+    if ((normalized.dots.shape as unknown) === '')
+      normalized.dots.shape = undefined;
     if (normalized.dots.color === '') normalized.dots.color = undefined;
   }
-  
+
   if (normalized.border) {
     normalized.border = { ...normalized.border };
-    if ((normalized.border.shape as any) === '') normalized.border.shape = undefined;
+    if ((normalized.border.shape as unknown) === '')
+      normalized.border.shape = undefined;
     if (normalized.border.color === '') normalized.border.color = undefined;
-    if ((normalized.border.style as any) === '') normalized.border.style = undefined;
+    if ((normalized.border.style as unknown) === '')
+      normalized.border.style = undefined;
   }
-  
+
   // Note: logo.src is intentionally NOT normalized - it's a required field when logo is provided
-  
+
   return normalized;
 }
 
@@ -92,15 +96,15 @@ function normalizeImageOptions(options: ImageOptions): ImageOptions {
  */
 function normalizeTextOptions(options: TextOptions): TextOptions {
   const normalized: TextOptions = { ...options };
-  
+
   if (normalized.darkChar === '') {
     normalized.darkChar = undefined;
   }
-  
+
   if (normalized.lightChar === '') {
     normalized.lightChar = undefined;
   }
-  
+
   return normalized;
 }
 
@@ -151,22 +155,30 @@ function validateColor(value: unknown, field: string): ValidationError | null {
   }
 
   // RGB/RGBA: rgb(r, g, b) or rgba(r, g, b, a)
-  const rgbPattern = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/;
+  const rgbPattern =
+    /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/;
   const rgbMatch = trimmed.match(rgbPattern);
   if (rgbMatch) {
     const [, r, g, b, a] = rgbMatch;
     const red = parseInt(r, 10);
     const green = parseInt(g, 10);
     const blue = parseInt(b, 10);
-    
-    if (red < 0 || red > 255 || green < 0 || green > 255 || blue < 0 || blue > 255) {
+
+    if (
+      red < 0 ||
+      red > 255 ||
+      green < 0 ||
+      green > 255 ||
+      blue < 0 ||
+      blue > 255
+    ) {
       return {
         field,
         value,
         message: `RGB values must be between 0-255`,
       };
     }
-    
+
     if (a !== undefined) {
       const alpha = parseFloat(a);
       if (isNaN(alpha) || alpha < 0 || alpha > 1) {
@@ -177,19 +189,20 @@ function validateColor(value: unknown, field: string): ValidationError | null {
         };
       }
     }
-    
+
     return null;
   }
 
   // HSL/HSLA: hsl(h, s%, l%) or hsla(h, s%, l%, a)
-  const hslPattern = /^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([\d.]+)\s*)?\)$/;
+  const hslPattern =
+    /^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([\d.]+)\s*)?\)$/;
   const hslMatch = trimmed.match(hslPattern);
   if (hslMatch) {
     const [, h, s, l, a] = hslMatch;
     const hue = parseInt(h, 10);
     const sat = parseInt(s, 10);
     const light = parseInt(l, 10);
-    
+
     if (hue < 0 || hue > 360) {
       return {
         field,
@@ -197,7 +210,7 @@ function validateColor(value: unknown, field: string): ValidationError | null {
         message: `HSL hue must be between 0-360`,
       };
     }
-    
+
     if (sat < 0 || sat > 100 || light < 0 || light > 100) {
       return {
         field,
@@ -205,7 +218,7 @@ function validateColor(value: unknown, field: string): ValidationError | null {
         message: `HSL saturation and lightness must be between 0-100%`,
       };
     }
-    
+
     if (a !== undefined) {
       const alpha = parseFloat(a);
       if (isNaN(alpha) || alpha < 0 || alpha > 1) {
@@ -216,37 +229,162 @@ function validateColor(value: unknown, field: string): ValidationError | null {
         };
       }
     }
-    
+
     return null;
   }
 
   // Named colors (CSS Level 3 standard colors + transparent)
   const namedColors = [
-    'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black',
-    'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse',
-    'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue',
-    'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgrey', 'darkgreen', 'darkkhaki',
-    'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon',
-    'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise',
-    'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick',
-    'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod',
-    'gray', 'grey', 'green', 'greenyellow', 'honeydew', 'hotpink', 'indianred', 'indigo',
-    'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue',
-    'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen',
-    'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray',
-    'lightslategrey', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta',
-    'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple',
-    'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise',
-    'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite',
-    'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod',
-    'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink',
-    'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon',
-    'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue',
-    'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle',
-    'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen',
-    'transparent'
+    'aliceblue',
+    'antiquewhite',
+    'aqua',
+    'aquamarine',
+    'azure',
+    'beige',
+    'bisque',
+    'black',
+    'blanchedalmond',
+    'blue',
+    'blueviolet',
+    'brown',
+    'burlywood',
+    'cadetblue',
+    'chartreuse',
+    'chocolate',
+    'coral',
+    'cornflowerblue',
+    'cornsilk',
+    'crimson',
+    'cyan',
+    'darkblue',
+    'darkcyan',
+    'darkgoldenrod',
+    'darkgray',
+    'darkgrey',
+    'darkgreen',
+    'darkkhaki',
+    'darkmagenta',
+    'darkolivegreen',
+    'darkorange',
+    'darkorchid',
+    'darkred',
+    'darksalmon',
+    'darkseagreen',
+    'darkslateblue',
+    'darkslategray',
+    'darkslategrey',
+    'darkturquoise',
+    'darkviolet',
+    'deeppink',
+    'deepskyblue',
+    'dimgray',
+    'dimgrey',
+    'dodgerblue',
+    'firebrick',
+    'floralwhite',
+    'forestgreen',
+    'fuchsia',
+    'gainsboro',
+    'ghostwhite',
+    'gold',
+    'goldenrod',
+    'gray',
+    'grey',
+    'green',
+    'greenyellow',
+    'honeydew',
+    'hotpink',
+    'indianred',
+    'indigo',
+    'ivory',
+    'khaki',
+    'lavender',
+    'lavenderblush',
+    'lawngreen',
+    'lemonchiffon',
+    'lightblue',
+    'lightcoral',
+    'lightcyan',
+    'lightgoldenrodyellow',
+    'lightgray',
+    'lightgrey',
+    'lightgreen',
+    'lightpink',
+    'lightsalmon',
+    'lightseagreen',
+    'lightskyblue',
+    'lightslategray',
+    'lightslategrey',
+    'lightsteelblue',
+    'lightyellow',
+    'lime',
+    'limegreen',
+    'linen',
+    'magenta',
+    'maroon',
+    'mediumaquamarine',
+    'mediumblue',
+    'mediumorchid',
+    'mediumpurple',
+    'mediumseagreen',
+    'mediumslateblue',
+    'mediumspringgreen',
+    'mediumturquoise',
+    'mediumvioletred',
+    'midnightblue',
+    'mintcream',
+    'mistyrose',
+    'moccasin',
+    'navajowhite',
+    'navy',
+    'oldlace',
+    'olive',
+    'olivedrab',
+    'orange',
+    'orangered',
+    'orchid',
+    'palegoldenrod',
+    'palegreen',
+    'paleturquoise',
+    'palevioletred',
+    'papayawhip',
+    'peachpuff',
+    'peru',
+    'pink',
+    'plum',
+    'powderblue',
+    'purple',
+    'red',
+    'rosybrown',
+    'royalblue',
+    'saddlebrown',
+    'salmon',
+    'sandybrown',
+    'seagreen',
+    'seashell',
+    'sienna',
+    'silver',
+    'skyblue',
+    'slateblue',
+    'slategray',
+    'slategrey',
+    'snow',
+    'springgreen',
+    'steelblue',
+    'tan',
+    'teal',
+    'thistle',
+    'tomato',
+    'turquoise',
+    'violet',
+    'wheat',
+    'white',
+    'whitesmoke',
+    'yellow',
+    'yellowgreen',
+    'transparent',
   ];
-  
+
   if (namedColors.includes(trimmed.toLowerCase())) {
     return null;
   }
@@ -383,7 +521,7 @@ function isValidURL(url: string): boolean {
 export function validateImageOptions(options: ImageOptions): ImageOptions {
   // Normalize empty strings to undefined first
   const normalized = normalizeImageOptions(options);
-  
+
   const errors: ValidationError[] = [];
 
   // Size: minimum 21 pixels (smallest generally supported QR code), no max (let platform decide memory limits)
@@ -406,7 +544,11 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
 
   // Eyes
   if (normalized.eyes?.shape !== undefined) {
-    const err = validateEnum(normalized.eyes.shape, 'eyes.shape', EyeFrameShapes);
+    const err = validateEnum(
+      normalized.eyes.shape,
+      'eyes.shape',
+      EyeFrameShapes
+    );
     if (err) errors.push(err);
   }
   if (normalized.eyes?.color !== undefined) {
@@ -469,7 +611,8 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
   if (normalized.border?.style !== undefined) {
     if (
       typeof normalized.border.style !== 'string' ||
-      (normalized.border.style !== 'solid' && normalized.border.style !== 'dashed')
+      (normalized.border.style !== 'solid' &&
+        normalized.border.style !== 'dashed')
     ) {
       errors.push({
         field: 'border.style',
@@ -507,7 +650,7 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
   if (errors.length > 0) {
     throw new QRValidationError(errors);
   }
-  
+
   return normalized;
 }
 
@@ -518,7 +661,7 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
 export function validateTextOptions(options: TextOptions): TextOptions {
   // Normalize empty strings to undefined first
   const normalized = normalizeTextOptions(options);
-  
+
   const errors: ValidationError[] = [];
 
   if (normalized.margin !== undefined) {
@@ -526,7 +669,10 @@ export function validateTextOptions(options: TextOptions): TextOptions {
     if (err) errors.push(err);
   }
 
-  if (normalized.darkChar !== undefined && typeof normalized.darkChar !== 'string') {
+  if (
+    normalized.darkChar !== undefined &&
+    typeof normalized.darkChar !== 'string'
+  ) {
     errors.push({
       field: 'darkChar',
       value: normalized.darkChar,
@@ -548,7 +694,7 @@ export function validateTextOptions(options: TextOptions): TextOptions {
   if (errors.length > 0) {
     throw new QRValidationError(errors);
   }
-  
+
   return normalized;
 }
 
