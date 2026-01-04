@@ -71,10 +71,133 @@ describe('Input Validation', () => {
       ).rejects.toThrow(QRValidationError);
     });
 
-    it('should reject invalid hex color (too short)', async () => {
+    it('should accept 3-digit hex colors', async () => {
       await expect(
         genQrImage('test', { backgroundColor: '#fff' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: '#F0A' })
+      ).resolves.not.toThrow();
+    });
+
+    it('should accept 6-digit hex colors', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: '#ffffff' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: '#FF00AA' })
+      ).resolves.not.toThrow();
+    });
+
+    it('should accept rgb colors', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgb(255, 255, 255)' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { dots: { color: 'rgb(0, 0, 0)' } })
+      ).resolves.not.toThrow();
+    });
+
+    it('should accept rgba colors with valid alpha', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgba(255, 255, 255, 0.9)' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgba(255, 255, 255, 1)' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgba(255, 255, 255, 0)' })
+      ).resolves.not.toThrow();
+    });
+
+    it('should reject rgb colors with out of range values', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgb(256, 0, 0)' })
       ).rejects.toThrow(QRValidationError);
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgb(-1, 0, 0)' })
+      ).rejects.toThrow(QRValidationError);
+    });
+
+    it('should reject rgba colors with invalid alpha', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgba(255, 255, 255, 1.5)' })
+      ).rejects.toThrow(QRValidationError);
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgba(255, 255, 255, -0.1)' })
+      ).rejects.toThrow(QRValidationError);
+    });
+
+    it('should accept hsl colors', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsl(0, 0%, 100%)' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { eyes: { color: 'hsl(240, 100%, 50%)' } })
+      ).resolves.not.toThrow();
+    });
+
+    it('should accept hsla colors with valid alpha', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsla(0, 0%, 100%, 0.8)' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsla(120, 50%, 50%, 1)' })
+      ).resolves.not.toThrow();
+    });
+
+    it('should reject hsl colors with out of range values', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsl(361, 50%, 50%)' })
+      ).rejects.toThrow(QRValidationError);
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsl(180, 101%, 50%)' })
+      ).rejects.toThrow(QRValidationError);
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsl(180, 50%, 101%)' })
+      ).rejects.toThrow(QRValidationError);
+    });
+
+    it('should reject hsla colors with invalid alpha', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'hsla(0, 0%, 100%, 2)' })
+      ).rejects.toThrow(QRValidationError);
+    });
+
+    it('should accept named colors', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'white' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { dots: { color: 'black' } })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { eyes: { color: 'red' } })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { pupils: { color: 'blue' } })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { border: { shape: BorderShape.SQUARE, color: 'green' } })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: 'transparent' })
+      ).resolves.not.toThrow();
+    });
+
+    it('should reject invalid named colors', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'notacolor' })
+      ).rejects.toThrow(QRValidationError);
+    });
+
+    it('should accept colors with various spacing', async () => {
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgb(255,255,255)' })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { backgroundColor: 'rgb( 255 , 255 , 255 )' })
+      ).resolves.not.toThrow();
     });
 
     it('should reject dots.scale below 0.75', async () => {

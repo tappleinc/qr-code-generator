@@ -155,23 +155,23 @@ import { genQrImage, EyeFrameShape, DotShape, BorderShape } from '@tapple.io/qr-
 const options = {
   size: 300,                    // QR matrix size in pixels  
   margin: 24,                   // Margin in pixels
-  backgroundColor: '#ffffff',   // Background color
+  backgroundColor: 'white',     // CSS color: hex, rgb, rgba, hsl, hsla, or named
   
   // Eye (position marker) styling
   eyes: {
     shape: EyeFrameShape.SQUIRCLE,  // 'square' | 'squircle'
-    color: '#0066ff'
+    color: '#0066ff'                // Supports all CSS color formats
   },
   
   // Pupil (center of eyes) styling
   pupils: {
-    color: '#000000'
+    color: 'rgb(0, 0, 0)'            // Can mix color formats
   },
   
   // Data dot styling
   dots: {
     shape: DotShape.DOTS,       // 'classic' | 'dots' | 'square'
-    color: '#000000',
+    color: 'hsl(0, 0%, 0%)',    // HSL format supported
     scale: 1.0                  // 0.75 to 1.25
   },
   
@@ -185,7 +185,7 @@ const options = {
   border: {
     shape: BorderShape.SQUIRCLE,  // 'none' | 'square' | 'squircle' | 'circle'
     width: 10,                    // Border width in pixels
-    color: '#000000',
+    color: 'rgba(0, 0, 0, 0.8)',  // RGBA with transparency supported
     style: 'solid'                // 'solid' | 'dashed'
   },
   
@@ -207,15 +207,15 @@ Complete reference for PNG and SVG rendering options:
 |--------|------|---------|-------------|-------------|
 | `size` | number | `300` | >= 21 | QR matrix size in pixels |
 | `margin` | number | `24` | >= 0 | Spacing around QR code in pixels |
-| `backgroundColor` | string | `'#ffffff'` | Hex color | Background color |
+| `backgroundColor` | string | `'#ffffff'` | CSS color | Background color (supports hex, rgb/rgba, hsl/hsla, named colors) |
 | **Eyes (Position Markers)** |
 | `eyes.shape` | enum | `'square'` | `'square'` \| `'squircle'` | Outer frame shape of position markers |
-| `eyes.color` | string | `'#000000'` | Hex color | Color of eye frames |
+| `eyes.color` | string | `'#000000'` | CSS color | Color of eye frames (supports hex, rgb/rgba, hsl/hsla, named colors) |
 | **Pupils (Eye Centers)** |
-| `pupils.color` | string | `'#000000'` | Hex color | Color of pupil (inner square of eyes) |
+| `pupils.color` | string | `'#000000'` | CSS color | Color of pupil (inner square of eyes) |
 | **Dots (Data Modules)** |
 | `dots.shape` | enum | `'classic'` | `'classic'` \| `'dots'` \| `'square'` | Shape of data modules |
-| `dots.color` | string | `'#000000'` | Hex color | Color of data modules |
+| `dots.color` | string | `'#000000'` | CSS color | Color of data modules |
 | `dots.scale` | number | `1.0` | 0.75 - 1.25 | Visual size multiplier |
 | **Logo** |
 | `logo.src` | string | - | Data URL or SVG string | Image source |
@@ -223,13 +223,59 @@ Complete reference for PNG and SVG rendering options:
 | **Border** |
 | `border.shape` | enum | `'none'` | `'none'` \| `'square'` \| `'squircle'` \| `'circle'` | Border shape wrapping the QR code |
 | `border.width` | number | `10` | >=0 | Border thickness in pixels |
-| `border.color` | string | `'#000000'` | Hex color | Border color |
+| `border.color` | string | `'#000000'` | CSS color | Border color (supports hex, rgb/rgba, hsl/hsla, named colors) |
 | `border.style` | enum | `'solid'` | `'solid'` \| `'dashed'` | Border line style |
 | **Output** |
 | `output.format` | enum | `'png'` | `'png'` \| `'svg'` | Output image format |
 | `output.type` | enum | `'buffer'` | `'buffer'` \| `'dataURL'` (png), `'string'` \| `'dataURL'` (svg) | Output type |
 
 > **Note:** Error correction level is automatically selected based on input length and logo presence (not user-configurable).
+
+### Color Format Support
+
+All color properties (`backgroundColor`, `eyes.color`, `pupils.color`, `dots.color`, `border.color`) support multiple CSS color formats:
+
+#### Supported Formats
+
+**Hexadecimal (3 or 6 digits)**
+```typescript
+backgroundColor: '#fff'      // 3-digit shorthand
+backgroundColor: '#ffffff'   // 6-digit full
+```
+
+**RGB / RGBA**
+```typescript
+dots: { color: 'rgb(0, 0, 0)' }
+dots: { color: 'rgba(0, 0, 0, 0.8)' }  // With transparency
+```
+
+**HSL / HSLA**
+```typescript
+eyes: { color: 'hsl(240, 100%, 50%)' }
+eyes: { color: 'hsla(240, 100%, 50%, 0.9)' }  // With transparency
+```
+
+**Named Colors**
+```typescript
+backgroundColor: 'white'
+dots: { color: 'black' }
+border: { color: 'red' }
+// Supports all 147 CSS3 named colors + 'transparent'
+```
+
+**Mixed Formats**
+```typescript
+// You can mix different formats in the same QR code
+const qr = await genQrImage('Hello', {
+  backgroundColor: 'white',
+  eyes: { color: '#0066ff' },
+  pupils: { color: 'rgb(0, 0, 0)' },
+  dots: { color: 'hsl(0, 0%, 20%)' },
+  border: { shape: BorderShape.CIRCLE, color: 'rgba(0, 0, 0, 0.5)' }
+});
+```
+
+> **Note on Transparency:** When using alpha channels (RGBA/HSLA), ensure sufficient contrast for QR code scannability. Alpha values below 0.8 may reduce scan reliability.
 
 ### TextOptions Reference
 

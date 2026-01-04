@@ -43,6 +43,68 @@ export class QRValidationError extends Error {
 }
 
 // ============================================================================
+// Normalization Functions
+// ============================================================================
+
+/**
+ * Normalize empty strings to undefined for ImageOptions
+ * Returns a new object without mutating the input
+ */
+function normalizeImageOptions(options: ImageOptions): ImageOptions {
+  const normalized: ImageOptions = { ...options };
+  
+  if (normalized.backgroundColor === '') {
+    normalized.backgroundColor = undefined;
+  }
+  
+  if (normalized.eyes) {
+    normalized.eyes = { ...normalized.eyes };
+    if ((normalized.eyes.shape as any) === '') normalized.eyes.shape = undefined;
+    if (normalized.eyes.color === '') normalized.eyes.color = undefined;
+  }
+  
+  if (normalized.pupils) {
+    normalized.pupils = { ...normalized.pupils };
+    if (normalized.pupils.color === '') normalized.pupils.color = undefined;
+  }
+  
+  if (normalized.dots) {
+    normalized.dots = { ...normalized.dots };
+    if ((normalized.dots.shape as any) === '') normalized.dots.shape = undefined;
+    if (normalized.dots.color === '') normalized.dots.color = undefined;
+  }
+  
+  if (normalized.border) {
+    normalized.border = { ...normalized.border };
+    if ((normalized.border.shape as any) === '') normalized.border.shape = undefined;
+    if (normalized.border.color === '') normalized.border.color = undefined;
+    if ((normalized.border.style as any) === '') normalized.border.style = undefined;
+  }
+  
+  // Note: logo.src is intentionally NOT normalized - it's a required field when logo is provided
+  
+  return normalized;
+}
+
+/**
+ * Normalize empty strings to undefined for TextOptions
+ * Returns a new object without mutating the input
+ */
+function normalizeTextOptions(options: TextOptions): TextOptions {
+  const normalized: TextOptions = { ...options };
+  
+  if (normalized.darkChar === '') {
+    normalized.darkChar = undefined;
+  }
+  
+  if (normalized.lightChar === '') {
+    normalized.lightChar = undefined;
+  }
+  
+  return normalized;
+}
+
+// ============================================================================
 // Validation Helper Functions
 // ============================================================================
 
@@ -72,20 +134,129 @@ function validateNumber(
 }
 
 /**
- * Validate hex color format
+ * Validate CSS color format
+ * Supports: hex (#fff, #ffffff), rgb, rgba, hsl, hsla, and named colors
  */
 function validateColor(value: unknown, field: string): ValidationError | null {
   if (typeof value !== 'string') {
     return { field, value, message: `must be a string` };
   }
-  if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
-    return {
-      field,
-      value,
-      message: `must be a valid hex color (e.g., #000000)`,
-    };
+
+  const trimmed = value.trim();
+
+  // Hex colors: #fff or #ffffff
+  const hexPattern = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+  if (hexPattern.test(trimmed)) {
+    return null;
   }
-  return null;
+
+  // RGB/RGBA: rgb(r, g, b) or rgba(r, g, b, a)
+  const rgbPattern = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/;
+  const rgbMatch = trimmed.match(rgbPattern);
+  if (rgbMatch) {
+    const [, r, g, b, a] = rgbMatch;
+    const red = parseInt(r, 10);
+    const green = parseInt(g, 10);
+    const blue = parseInt(b, 10);
+    
+    if (red < 0 || red > 255 || green < 0 || green > 255 || blue < 0 || blue > 255) {
+      return {
+        field,
+        value,
+        message: `RGB values must be between 0-255`,
+      };
+    }
+    
+    if (a !== undefined) {
+      const alpha = parseFloat(a);
+      if (isNaN(alpha) || alpha < 0 || alpha > 1) {
+        return {
+          field,
+          value,
+          message: `RGBA alpha value must be between 0-1`,
+        };
+      }
+    }
+    
+    return null;
+  }
+
+  // HSL/HSLA: hsl(h, s%, l%) or hsla(h, s%, l%, a)
+  const hslPattern = /^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([\d.]+)\s*)?\)$/;
+  const hslMatch = trimmed.match(hslPattern);
+  if (hslMatch) {
+    const [, h, s, l, a] = hslMatch;
+    const hue = parseInt(h, 10);
+    const sat = parseInt(s, 10);
+    const light = parseInt(l, 10);
+    
+    if (hue < 0 || hue > 360) {
+      return {
+        field,
+        value,
+        message: `HSL hue must be between 0-360`,
+      };
+    }
+    
+    if (sat < 0 || sat > 100 || light < 0 || light > 100) {
+      return {
+        field,
+        value,
+        message: `HSL saturation and lightness must be between 0-100%`,
+      };
+    }
+    
+    if (a !== undefined) {
+      const alpha = parseFloat(a);
+      if (isNaN(alpha) || alpha < 0 || alpha > 1) {
+        return {
+          field,
+          value,
+          message: `HSLA alpha value must be between 0-1`,
+        };
+      }
+    }
+    
+    return null;
+  }
+
+  // Named colors (CSS Level 3 standard colors + transparent)
+  const namedColors = [
+    'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black',
+    'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse',
+    'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue',
+    'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgrey', 'darkgreen', 'darkkhaki',
+    'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon',
+    'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise',
+    'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick',
+    'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod',
+    'gray', 'grey', 'green', 'greenyellow', 'honeydew', 'hotpink', 'indianred', 'indigo',
+    'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue',
+    'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgrey', 'lightgreen',
+    'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray',
+    'lightslategrey', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta',
+    'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple',
+    'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise',
+    'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite',
+    'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod',
+    'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink',
+    'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon',
+    'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue',
+    'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle',
+    'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen',
+    'transparent'
+  ];
+  
+  if (namedColors.includes(trimmed.toLowerCase())) {
+    return null;
+  }
+
+  // Invalid format
+  return {
+    field,
+    value,
+    message: `must be a valid CSS color (hex: #fff or #ffffff, rgb/rgba, hsl/hsla, or named color)`,
+  };
 }
 
 /**
@@ -209,55 +380,58 @@ function isValidURL(url: string): boolean {
  * Validate ImageOptions before processing
  * Throws QRValidationError if any validation fails
  */
-export function validateImageOptions(options: ImageOptions): void {
+export function validateImageOptions(options: ImageOptions): ImageOptions {
+  // Normalize empty strings to undefined first
+  const normalized = normalizeImageOptions(options);
+  
   const errors: ValidationError[] = [];
 
   // Size: minimum 21 pixels (smallest generally supported QR code), no max (let platform decide memory limits)
-  if (options.size !== undefined) {
-    const err = validateNumber(options.size, 'size', 21, null, true);
+  if (normalized.size !== undefined) {
+    const err = validateNumber(normalized.size, 'size', 21, null, true);
     if (err) errors.push(err);
   }
 
   // Margin: non-negative integer
-  if (options.margin !== undefined) {
-    const err = validateNumber(options.margin, 'margin', 0, null, true);
+  if (normalized.margin !== undefined) {
+    const err = validateNumber(normalized.margin, 'margin', 0, null, true);
     if (err) errors.push(err);
   }
 
   // Background color
-  if (options.backgroundColor !== undefined) {
-    const err = validateColor(options.backgroundColor, 'backgroundColor');
+  if (normalized.backgroundColor !== undefined) {
+    const err = validateColor(normalized.backgroundColor, 'backgroundColor');
     if (err) errors.push(err);
   }
 
   // Eyes
-  if (options.eyes?.shape !== undefined) {
-    const err = validateEnum(options.eyes.shape, 'eyes.shape', EyeFrameShapes);
+  if (normalized.eyes?.shape !== undefined) {
+    const err = validateEnum(normalized.eyes.shape, 'eyes.shape', EyeFrameShapes);
     if (err) errors.push(err);
   }
-  if (options.eyes?.color !== undefined) {
-    const err = validateColor(options.eyes.color, 'eyes.color');
+  if (normalized.eyes?.color !== undefined) {
+    const err = validateColor(normalized.eyes.color, 'eyes.color');
     if (err) errors.push(err);
   }
 
   // Pupils
-  if (options.pupils?.color !== undefined) {
-    const err = validateColor(options.pupils.color, 'pupils.color');
+  if (normalized.pupils?.color !== undefined) {
+    const err = validateColor(normalized.pupils.color, 'pupils.color');
     if (err) errors.push(err);
   }
 
   // Dots
-  if (options.dots?.shape !== undefined) {
-    const err = validateEnum(options.dots.shape, 'dots.shape', DotShapes);
+  if (normalized.dots?.shape !== undefined) {
+    const err = validateEnum(normalized.dots.shape, 'dots.shape', DotShapes);
     if (err) errors.push(err);
   }
-  if (options.dots?.color !== undefined) {
-    const err = validateColor(options.dots.color, 'dots.color');
+  if (normalized.dots?.color !== undefined) {
+    const err = validateColor(normalized.dots.color, 'dots.color');
     if (err) errors.push(err);
   }
-  if (options.dots?.scale !== undefined) {
+  if (normalized.dots?.scale !== undefined) {
     const err = validateNumber(
-      options.dots.scale,
+      normalized.dots.scale,
       'dots.scale',
       0.75,
       1.25,
@@ -267,20 +441,20 @@ export function validateImageOptions(options: ImageOptions): void {
   }
 
   // Border
-  if (options.border?.shape !== undefined) {
+  if (normalized.border?.shape !== undefined) {
     // 'none' is a special case - not in BorderShapes but valid
-    if (options.border.shape !== 'none') {
+    if (normalized.border.shape !== 'none') {
       const err = validateEnum(
-        options.border.shape,
+        normalized.border.shape,
         'border.shape',
         BorderShapes
       );
       if (err) errors.push(err);
     }
   }
-  if (options.border?.width !== undefined) {
+  if (normalized.border?.width !== undefined) {
     const err = validateNumber(
-      options.border.width,
+      normalized.border.width,
       'border.width',
       0,
       null,
@@ -288,39 +462,39 @@ export function validateImageOptions(options: ImageOptions): void {
     );
     if (err) errors.push(err);
   }
-  if (options.border?.color !== undefined) {
-    const err = validateColor(options.border.color, 'border.color');
+  if (normalized.border?.color !== undefined) {
+    const err = validateColor(normalized.border.color, 'border.color');
     if (err) errors.push(err);
   }
-  if (options.border?.style !== undefined) {
+  if (normalized.border?.style !== undefined) {
     if (
-      typeof options.border.style !== 'string' ||
-      (options.border.style !== 'solid' && options.border.style !== 'dashed')
+      typeof normalized.border.style !== 'string' ||
+      (normalized.border.style !== 'solid' && normalized.border.style !== 'dashed')
     ) {
       errors.push({
         field: 'border.style',
-        value: options.border.style,
+        value: normalized.border.style,
         message: 'must be either "solid" or "dashed"',
       });
     }
   }
 
   // Logo
-  if (options.logo) {
-    if (!options.logo.src || typeof options.logo.src !== 'string') {
+  if (normalized.logo) {
+    if (!normalized.logo.src || typeof normalized.logo.src !== 'string') {
       errors.push({
         field: 'logo.src',
-        value: options.logo.src,
+        value: normalized.logo.src,
         message: 'must be a non-empty string',
       });
     } else {
       // Validate logo src format
-      const err = validateLogoSrc(options.logo.src, 'logo.src');
+      const err = validateLogoSrc(normalized.logo.src, 'logo.src');
       if (err) errors.push(err);
     }
-    if (options.logo.scale !== undefined) {
+    if (normalized.logo.scale !== undefined) {
       const err = validateNumber(
-        options.logo.scale,
+        normalized.logo.scale,
         'logo.scale',
         0.1,
         0.3,
@@ -333,35 +507,40 @@ export function validateImageOptions(options: ImageOptions): void {
   if (errors.length > 0) {
     throw new QRValidationError(errors);
   }
+  
+  return normalized;
 }
 
 /**
  * Validate TextOptions before processing
  * Throws QRValidationError if any validation fails
  */
-export function validateTextOptions(options: TextOptions): void {
+export function validateTextOptions(options: TextOptions): TextOptions {
+  // Normalize empty strings to undefined first
+  const normalized = normalizeTextOptions(options);
+  
   const errors: ValidationError[] = [];
 
-  if (options.margin !== undefined) {
-    const err = validateNumber(options.margin, 'margin', 0, null, true);
+  if (normalized.margin !== undefined) {
+    const err = validateNumber(normalized.margin, 'margin', 0, null, true);
     if (err) errors.push(err);
   }
 
-  if (options.darkChar !== undefined && typeof options.darkChar !== 'string') {
+  if (normalized.darkChar !== undefined && typeof normalized.darkChar !== 'string') {
     errors.push({
       field: 'darkChar',
-      value: options.darkChar,
+      value: normalized.darkChar,
       message: 'must be a string',
     });
   }
 
   if (
-    options.lightChar !== undefined &&
-    typeof options.lightChar !== 'string'
+    normalized.lightChar !== undefined &&
+    typeof normalized.lightChar !== 'string'
   ) {
     errors.push({
       field: 'lightChar',
-      value: options.lightChar,
+      value: normalized.lightChar,
       message: 'must be a string',
     });
   }
@@ -369,6 +548,8 @@ export function validateTextOptions(options: TextOptions): void {
   if (errors.length > 0) {
     throw new QRValidationError(errors);
   }
+  
+  return normalized;
 }
 
 /**

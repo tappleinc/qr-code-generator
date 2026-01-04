@@ -241,6 +241,18 @@
       font-style: italic;
     }
 
+    .example-link {
+      color: #0983b3;
+      text-decoration: none;
+      font-weight: 600;
+      font-style: normal;
+      cursor: pointer;
+    }
+
+    .example-link:hover {
+      text-decoration: underline;
+    }
+
     code {
       background: #f4f4f4;
       padding: 2px 6px;
@@ -280,10 +292,19 @@
         <!-- Content Section -->
         <div class="section">
           <h2>Content</h2>
-          <div class="form-group">
-            <label for="content">QR Code Content</label>
-            <textarea id="content" placeholder="Enter text, URL, or any data...">https://github.com/tappleinc/qr-code-generator</textarea>
-            <div class="info-text">Supports text, URLs, vCard, WiFi, and more. Error correction level is auto-selected.</div>
+          <div class="form-group"> 
+            <textarea id="content" rows="11" placeholder="Enter text, URL, or any data...">https://github.com/tappleinc/qr-code-generator</textarea>
+            <div class="info-text">
+              Try examples: 
+              <a href="#" class="example-link" data-example="url">URL</a> • 
+              <a href="#" class="example-link" data-example="text">Text</a> • 
+              <a href="#" class="example-link" data-example="vcard">vCard</a> • 
+              <a href="#" class="example-link" data-example="wifi">WiFi</a> • 
+              <a href="#" class="example-link" data-example="email">Email</a> • 
+              <a href="#" class="example-link" data-example="sms">SMS</a> • 
+              <a href="#" class="example-link" data-example="phone">Phone</a> • 
+              <a href="#" class="example-link" data-example="calendar">Calendar</a>
+            </div>
           </div>
         </div>
 
@@ -306,42 +327,42 @@
         <div class="section">
           <h2>Colors</h2>
           <div class="form-group">
-            <label>Background Color</label>
+            <label>Background Color <span style="font-weight: 300; font-size: 0.85em;">(hex, rgb, hsl, named)</span></label>
             <div class="color-input-wrapper">
               <input type="color" id="bgColor" value="#ffffff">
-              <input type="text" id="bgColorHex" value="#ffffff">
+              <input type="text" id="bgColorHex" value="#ffffff" placeholder="#ffffff or rgb() or hsl()">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Eye Color</label>
+            <label>Eye Color <span style="font-weight: 300; font-size: 0.85em;">(hex, rgb, hsl, named)</span></label>
             <div class="color-input-wrapper">
               <input type="color" id="eyeColor" value="#000000">
-              <input type="text" id="eyeColorHex" value="#000000">
+              <input type="text" id="eyeColorHex" value="#000000" placeholder="#000000 or rgb() or hsl()">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Pupil Color</label>
+            <label>Pupil Color <span style="font-weight: 300; font-size: 0.85em;">(hex, rgb, hsl, named)</span></label>
             <div class="color-input-wrapper">
               <input type="color" id="pupilColor" value="#000000">
-              <input type="text" id="pupilColorHex" value="#000000">
+              <input type="text" id="pupilColorHex" value="#000000" placeholder="#000000 or rgb() or hsl()">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Dot Color</label>
+            <label>Dot Color <span style="font-weight: 300; font-size: 0.85em;">(hex, rgb, hsl, named)</span></label>
             <div class="color-input-wrapper">
               <input type="color" id="dotColor" value="#000000">
-              <input type="text" id="dotColorHex" value="#000000">
+              <input type="text" id="dotColorHex" value="#000000" placeholder="#000000 or rgb() or hsl()">
             </div>
           </div>
           
           <div class="form-group">
-            <label>Border Color</label>
+            <label>Border Color <span style="font-weight: 300; font-size: 0.85em;">(hex, rgb, hsl, named)</span></label>
             <div class="color-input-wrapper">
               <input type="color" id="borderColor" value="#000000">
-              <input type="text" id="borderColorHex" value="#000000">
+              <input type="text" id="borderColorHex" value="#000000" placeholder="#000000 or rgb() or hsl()">
             </div>
           </div>
         </div>
@@ -431,12 +452,12 @@
           <p style="color: #999;">QR code will appear here</p>
         </div>
 
-        <div id="statusMessage"></div>
 
         <div class="download-buttons">
           <button class="btn btn-primary" id="downloadPNG">Download PNG</button>
           <button class="btn btn-primary" id="downloadSVG">Download SVG</button>
         </div>
+        <div id="statusMessage" style="margin-top: 20px"></div>
       </div>
     </div>
 
@@ -453,6 +474,37 @@
 
     // Constants
     const PREVIEW_SIZE = 300; // Fixed preview size for performance
+
+    // Example content for each type
+    const EXAMPLES = {
+      url: 'https://github.com/tappleinc/qr-code-generator',
+      text: 'Hello! This is a plain text QR code.',
+      vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:John Doe
+TEL:+1-555-123-4567
+EMAIL:john.doe@example.com
+ORG:Tapple Inc.
+URL:https://tapple.io
+TITLE:Software Engineer
+ADR:;;123 Main Street;San Francisco;CA;94102;USA
+NOTE:Scan to save contact
+END:VCARD`,
+      wifi: 'WIFI:T:WPA;S:MyHomeNetwork;P:SecurePassword123;H:false;;',
+      email: 'mailto:hello@tapple.io?subject=Hello&body=Thanks for the QR code generator!',
+      sms: 'sms:+1-555-123-4567:Check out this QR code generator!',
+      phone: 'tel:+1-555-123-4567',
+      calendar: `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:Team Meeting
+DTSTART:20260115T140000Z
+DTEND:20260115T150000Z
+LOCATION:Conference Room A
+DESCRIPTION:Monthly team sync meeting
+END:VEVENT
+END:VCALENDAR`
+    };
 
     // State
     let currentLogoDataURL = null;
@@ -488,17 +540,87 @@
       downloadSVG: document.getElementById('downloadSVG')
     };
 
-    // Sync color pickers with hex inputs
-    function syncColorInputs(colorPicker, hexInput) {
+    // Color format detection and conversion utilities
+    function detectColorFormat(colorString) {
+      const trimmed = colorString.trim();
+      if (/^#[0-9A-Fa-f]{3,6}$/.test(trimmed)) return 'hex';
+      if (/^rgba?\(/.test(trimmed)) return 'rgb';
+      if (/^hsla?\(/.test(trimmed)) return 'hsl';
+      return 'named'; // Assume named color
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+
+      return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+      };
+    }
+
+    function convertHexToFormat(hex, targetFormat) {
+      if (targetFormat === 'hex') return hex;
+      
+      const rgb = hexToRgb(hex);
+      if (!rgb) return hex;
+
+      if (targetFormat === 'rgb') {
+        return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+      }
+
+      if (targetFormat === 'hsl') {
+        const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+        return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+      }
+
+      return hex; // Fallback
+    }
+
+    // Sync color pickers with text inputs
+    // Converts color picker's hex output to match the format in the text input
+    function syncColorInputs(colorPicker, textInput) {
       colorPicker.addEventListener('input', () => {
-        hexInput.value = colorPicker.value;
+        const currentFormat = detectColorFormat(textInput.value);
+        const hexValue = colorPicker.value;
+        textInput.value = convertHexToFormat(hexValue, currentFormat);
         generateQR();
       });
-      hexInput.addEventListener('input', () => {
-        if (/^#[0-9A-Fa-f]{6}$/.test(hexInput.value)) {
-          colorPicker.value = hexInput.value;
-          generateQR();
+      
+      textInput.addEventListener('input', () => {
+        // Only sync to color picker if it's a valid 6-digit hex
+        // This allows users to type rgb(), hsl(), named colors, etc.
+        if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+          colorPicker.value = textInput.value;
         }
+        // Always regenerate QR with whatever format the user typed
+        generateQR();
       });
     }
 
@@ -507,6 +629,18 @@
     syncColorInputs(elements.pupilColor, elements.pupilColorHex);
     syncColorInputs(elements.dotColor, elements.dotColorHex);
     syncColorInputs(elements.borderColor, elements.borderColorHex);
+
+    // Example link handlers
+    document.querySelectorAll('.example-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const exampleType = link.getAttribute('data-example');
+        if (EXAMPLES[exampleType]) {
+          elements.content.value = EXAMPLES[exampleType];
+          generateQR();
+        }
+      });
+    });
 
     // Update range value displays
     elements.size.addEventListener('input', () => {
@@ -629,6 +763,9 @@
 
         // Display QR code
         elements.qrDisplay.innerHTML = `<img src="${dataURL}" alt="Generated QR Code">`;
+        
+        // Clear any previous error messages on success
+        elements.statusMessage.innerHTML = '';
       } catch (error) {
         console.error('Error generating QR code:', error);
         showMessage(`Error: ${error.message}`, 'error');

@@ -25,7 +25,7 @@ The interactive demo allows you to customize:
 
 ### Visual Styling
 - **Size & Margin**: Adjust QR matrix pixel size and margin spacing (in pixels)
-- **Colors**: Customize background, eyes, pupils, and dots
+- **Colors**: Customize background, eyes, pupils, and dots with any CSS color format (hex, rgb, rgba, hsl, hsla, named colors)
 - **Shapes**: Choose from multiple eye, dot, and border shapes
 - **Dot Scale**: Fine-tune visual dot size (0.75-1.25)
 - **Border**: Add decorative borders with custom shapes, widths (in pixels), and styles

@@ -150,25 +150,25 @@ export interface ImageOptions {
   size?: number;
   /** Margin around QR code in pixels (default: 24) */
   margin?: number;
-  /** Background color in hex format (default: '#ffffff') */
+  /** Background color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#ffffff') */
   backgroundColor?: string;
   /** Eye (outer frame) styling */
   eyes?: {
     /** Eye frame shape (default: 'square') */
     shape?: EyeFrameShape;
-    /** Eye frame color in hex format (default: '#000000') */
+    /** Eye frame color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#000000') */
     color?: string;
   };
   /** Pupil (inner core) styling */
   pupils?: {
-    /** Pupil color in hex format (default: '#000000') */
+    /** Pupil color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#000000') */
     color?: string;
   };
   /** Data dot (module) styling */
   dots?: {
     /** Data dot shape (default: 'classic') */
     shape?: DotShape;
-    /** Data dot color in hex format (default: '#000000') */
+    /** Data dot color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#000000') */
     color?: string;
     /** Data dot scale (0.75 to 1.25, default: 1.0) - adjusts visual size of dots while keeping overall dimensions fixed */
     scale?: number;
@@ -189,7 +189,7 @@ export interface ImageOptions {
      * Total output size = size + 2×margin + 2×width
      */
     width?: number;
-    /** Border color in hex format (default: '#000000') */
+    /** Border color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#000000') */
     color?: string;
     /** Border style - solid or dashed pattern (default: 'solid') */
     style?: BorderStyle;

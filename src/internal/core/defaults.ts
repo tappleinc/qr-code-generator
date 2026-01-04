@@ -128,39 +128,39 @@ export function mergeImageOptions(options?: ImageOptions): MergedImageOptions {
     return defaults as MergedImageOptions;
   }
 
-  // Validate options before merging
-  validateImageOptions(options);
+  // Validate and normalize options before merging
+  const normalized = validateImageOptions(options);
 
   const result: MergedImageOptions = {
-    size: options.size ?? DEFAULT_IMAGE_OPTIONS.size,
-    margin: options.margin ?? DEFAULT_IMAGE_OPTIONS.margin,
+    size: normalized.size ?? DEFAULT_IMAGE_OPTIONS.size,
+    margin: normalized.margin ?? DEFAULT_IMAGE_OPTIONS.margin,
     backgroundColor:
-      options.backgroundColor ?? DEFAULT_IMAGE_OPTIONS.backgroundColor,
+      normalized.backgroundColor ?? DEFAULT_IMAGE_OPTIONS.backgroundColor,
     eyes: {
-      shape: options.eyes?.shape ?? DEFAULT_IMAGE_OPTIONS.eyes.shape,
-      color: options.eyes?.color ?? DEFAULT_IMAGE_OPTIONS.eyes.color,
+      shape: normalized.eyes?.shape ?? DEFAULT_IMAGE_OPTIONS.eyes.shape,
+      color: normalized.eyes?.color ?? DEFAULT_IMAGE_OPTIONS.eyes.color,
     },
     pupils: {
-      color: options.pupils?.color ?? DEFAULT_IMAGE_OPTIONS.pupils.color,
+      color: normalized.pupils?.color ?? DEFAULT_IMAGE_OPTIONS.pupils.color,
     },
     dots: {
-      shape: options.dots?.shape ?? DEFAULT_IMAGE_OPTIONS.dots.shape,
-      color: options.dots?.color ?? DEFAULT_IMAGE_OPTIONS.dots.color,
-      scale: options.dots?.scale ?? DEFAULT_IMAGE_OPTIONS.dots.scale,
+      shape: normalized.dots?.shape ?? DEFAULT_IMAGE_OPTIONS.dots.shape,
+      color: normalized.dots?.color ?? DEFAULT_IMAGE_OPTIONS.dots.color,
+      scale: normalized.dots?.scale ?? DEFAULT_IMAGE_OPTIONS.dots.scale,
     },
-    logo: options.logo
+    logo: normalized.logo
       ? {
-          src: options.logo.src,
-          scale: options.logo.scale ?? DEFAULT_IMAGE_OPTIONS.logo.scale,
+          src: normalized.logo.src,
+          scale: normalized.logo.scale ?? DEFAULT_IMAGE_OPTIONS.logo.scale,
         }
       : undefined,
     border: {
-      shape: options.border?.shape ?? DEFAULT_IMAGE_OPTIONS.border.shape,
-      width: options.border?.width ?? DEFAULT_IMAGE_OPTIONS.border.width,
-      color: options.border?.color ?? DEFAULT_IMAGE_OPTIONS.border.color,
-      style: options.border?.style ?? DEFAULT_IMAGE_OPTIONS.border.style,
+      shape: normalized.border?.shape ?? DEFAULT_IMAGE_OPTIONS.border.shape,
+      width: normalized.border?.width ?? DEFAULT_IMAGE_OPTIONS.border.width,
+      color: normalized.border?.color ?? DEFAULT_IMAGE_OPTIONS.border.color,
+      style: normalized.border?.style ?? DEFAULT_IMAGE_OPTIONS.border.style,
     },
-    output: options.output ?? DEFAULT_IMAGE_OPTIONS.output,
+    output: normalized.output ?? DEFAULT_IMAGE_OPTIONS.output,
   };
 
   return result;
@@ -174,12 +174,12 @@ export function mergeImageOptions(options?: ImageOptions): MergedImageOptions {
 export function mergeTextOptions(options?: TextOptions): MergedTextOptions {
   if (!options) return { ...DEFAULT_TEXT_OPTIONS };
 
-  // Validate options before merging
-  validateTextOptions(options);
+  // Validate and normalize options before merging
+  const normalized = validateTextOptions(options);
 
   return {
-    margin: options.margin ?? DEFAULT_TEXT_OPTIONS.margin,
-    darkChar: options.darkChar ?? DEFAULT_TEXT_OPTIONS.darkChar,
-    lightChar: options.lightChar ?? DEFAULT_TEXT_OPTIONS.lightChar,
+    margin: normalized.margin ?? DEFAULT_TEXT_OPTIONS.margin,
+    darkChar: normalized.darkChar ?? DEFAULT_TEXT_OPTIONS.darkChar,
+    lightChar: normalized.lightChar ?? DEFAULT_TEXT_OPTIONS.lightChar,
   };
 }

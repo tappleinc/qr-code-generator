@@ -47,6 +47,8 @@ Tests individual modules and pure functions without external dependencies.
 - **encoding-modes.test.ts** - Encoding mode detection and selection
 - **input-lengths.test.ts** - Input length validation and capacity checks
 - **spec-validation.test.ts** - QR specification compliance tests
+- **validation.test.ts** - Public API option validation (colors, sizes, ranges, formats)
+- **empty-string-normalization.test.ts** - Empty string handling and normalization
 
 **Purpose**: Catch logic errors in isolated components. Fast execution (~100-200ms total).
 
@@ -57,6 +59,7 @@ Tests end-to-end functionality through the generation pipeline.
 
 - **data-types.test.ts** - Structured content (URL, phone, email, WiFi, vCard, calendar)
 - **options.test.ts** - Style options (size in pixels, margin in pixels, border width, colors, shapes)
+- **color-formats.test.ts** - CSS color format support (hex, rgb/rgba, hsl/hsla, named colors, mixed formats)
 - **rendering/** - Rendering output formats (subfolder)
   - **svg.test.ts** - SVG string/dataURL structure and validity
   - **png.test.ts** - PNG buffer/dataURL generation and binary format
@@ -96,9 +99,9 @@ Tests built npm packages (`dist/`) to ensure packaging works correctly.
 
 ```
 Source Tests (npm test):
-- Test Files: 15
-- Tests: 254
-- Duration: ~6s
+- Test Files: 19
+- Tests: 365
+- Duration: ~6-7s
 
 Dist Tests (npm run test:dist):
 - Test Files: 3
