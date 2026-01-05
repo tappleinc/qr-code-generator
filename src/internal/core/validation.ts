@@ -47,7 +47,14 @@ export class QRValidationError extends Error {
 // ============================================================================
 
 type ValidationRule = {
-  type: 'number' | 'color' | 'enum' | 'string' | 'boolean' | 'logoSrc' | 'borderStyle';
+  type:
+    | 'number'
+    | 'color'
+    | 'enum'
+    | 'string'
+    | 'boolean'
+    | 'logoSrc'
+    | 'borderStyle';
   min?: number;
   max?: number | null;
   integer?: boolean;
@@ -60,12 +67,12 @@ type ValidationSchema = Record<string, ValidationRule>;
 /**
  * Get nested value from object using dot notation path
  */
-function getNestedValue(obj: any, path: string): unknown {
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   const keys = path.split('.');
-  let value = obj;
+  let value: unknown = obj;
   for (const key of keys) {
     if (value && typeof value === 'object' && key in value) {
-      value = value[key];
+      value = (value as Record<string, unknown>)[key];
     } else {
       return undefined;
     }
@@ -76,34 +83,49 @@ function getNestedValue(obj: any, path: string): unknown {
 /**
  * Normalize empty strings to undefined recursively
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeEmptyStrings(obj: any): any {
   if (typeof obj !== 'object' || obj === null) return obj;
-  
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const normalized: any = Array.isArray(obj) ? [...obj] : { ...obj };
-  
+
   for (const key in normalized) {
     if (normalized[key] === '') {
       normalized[key] = undefined;
-    } else if (typeof normalized[key] === 'object' && normalized[key] !== null) {
+    } else if (
+      typeof normalized[key] === 'object' &&
+      normalized[key] !== null
+    ) {
       normalized[key] = normalizeEmptyStrings(normalized[key]);
     }
   }
-  
+
   return normalized;
 }
 
 /**
  * Validate a single field against a rule
  */
-function validateField(value: unknown, field: string, rule: ValidationRule): ValidationError | null {
+function validateField(
+  value: unknown,
+  field: string,
+  rule: ValidationRule
+): ValidationError | null {
   // Skip validation if value is undefined and field is optional
   if (value === undefined && rule.optional) {
     return null;
   }
-  
+
   switch (rule.type) {
     case 'number':
-      return validateNumber(value, field, rule.min ?? 0, rule.max ?? null, rule.integer ?? false);
+      return validateNumber(
+        value,
+        field,
+        rule.min ?? 0,
+        rule.max ?? null,
+        rule.integer ?? false
+      );
     case 'color':
       return validateColor(value, field);
     case 'enum':
@@ -124,7 +146,10 @@ function validateField(value: unknown, field: string, rule: ValidationRule): Val
       }
       return validateLogoSrc(value, field);
     case 'borderStyle':
-      if (typeof value !== 'string' || (value !== 'solid' && value !== 'dashed')) {
+      if (
+        typeof value !== 'string' ||
+        (value !== 'solid' && value !== 'dashed')
+      ) {
         return { field, value, message: 'must be either "solid" or "dashed"' };
       }
       return null;
@@ -136,15 +161,19 @@ function validateField(value: unknown, field: string, rule: ValidationRule): Val
 /**
  * Validate object against schema
  */
-function validateSchema(data: any, schema: ValidationSchema): ValidationError[] {
+function validateSchema(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any,
+  schema: ValidationSchema
+): ValidationError[] {
   const errors: ValidationError[] = [];
-  
+
   for (const [path, rule] of Object.entries(schema)) {
     const value = getNestedValue(data, path);
     const err = validateField(value, path, rule);
     if (err) errors.push(err);
   }
-  
+
   return errors;
 }
 
@@ -194,21 +223,34 @@ function validateColor(value: unknown, field: string): ValidationError | null {
   }
 
   // RGB/RGBA: rgb(r, g, b) or rgba(r, g, b, a)
-  const rgbMatch = trimmed.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/);
+  const rgbMatch = trimmed.match(
+    /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/
+  );
   if (rgbMatch) {
     const [, r, g, b, a] = rgbMatch;
     const red = parseInt(r, 10);
     const green = parseInt(g, 10);
     const blue = parseInt(b, 10);
 
-    if (red < 0 || red > 255 || green < 0 || green > 255 || blue < 0 || blue > 255) {
+    if (
+      red < 0 ||
+      red > 255 ||
+      green < 0 ||
+      green > 255 ||
+      blue < 0 ||
+      blue > 255
+    ) {
       return { field, value, message: `RGB values must be between 0-255` };
     }
 
     if (a !== undefined) {
       const alpha = parseFloat(a);
       if (isNaN(alpha) || alpha < 0 || alpha > 1) {
-        return { field, value, message: `RGBA alpha value must be between 0-1` };
+        return {
+          field,
+          value,
+          message: `RGBA alpha value must be between 0-1`,
+        };
       }
     }
 
@@ -216,7 +258,9 @@ function validateColor(value: unknown, field: string): ValidationError | null {
   }
 
   // HSL/HSLA: hsl(h, s%, l%) or hsla(h, s%, l%, a)
-  const hslMatch = trimmed.match(/^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([\d.]+)\s*)?\)$/);
+  const hslMatch = trimmed.match(
+    /^hsla?\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*(?:,\s*([\d.]+)\s*)?\)$/
+  );
   if (hslMatch) {
     const [, h, s, l, a] = hslMatch;
     const hue = parseInt(h, 10);
@@ -228,13 +272,21 @@ function validateColor(value: unknown, field: string): ValidationError | null {
     }
 
     if (sat < 0 || sat > 100 || light < 0 || light > 100) {
-      return { field, value, message: `HSL saturation and lightness must be between 0-100%` };
+      return {
+        field,
+        value,
+        message: `HSL saturation and lightness must be between 0-100%`,
+      };
     }
 
     if (a !== undefined) {
       const alpha = parseFloat(a);
       if (isNaN(alpha) || alpha < 0 || alpha > 1) {
-        return { field, value, message: `HSLA alpha value must be between 0-1` };
+        return {
+          field,
+          value,
+          message: `HSLA alpha value must be between 0-1`,
+        };
       }
     }
 
@@ -246,8 +298,9 @@ function validateColor(value: unknown, field: string): ValidationError | null {
   const validStart = /^[abcdefghilmnoprstvwy]/.test(lower);
   if (validStart) {
     // Check against common named colors using compact pattern matching
-    const namedColorPattern = /^(aliceblue|antiquewhite|aqua(marine)?|azure|beige|bisque|black|blanchedalmond|blue(violet)?|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|dark(blue|cyan|goldenrod|gray|grey|green|khaki|magenta|olivegreen|orange|orchid|red|salmon|seagreen|slateblue|slategray|slategrey|turquoise|violet)|deep(pink|skyblue)|dim(gray|grey)|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold(enrod)?|gray|grey|green(yellow)?|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender(blush)?|lawngreen|lemonchiffon|light(blue|coral|cyan|goldenrodyellow|gray|grey|green|pink|salmon|seagreen|skyblue|slategray|slategrey|steelblue|yellow)|lime(green)?|linen|magenta|maroon|medium(aquamarine|blue|orchid|purple|seagreen|slateblue|springgreen|turquoise|violetred)|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive(drab)?|orange(red)?|orchid|pale(goldenrod|green|turquoise|violetred)|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slate(gray|grey)|snow|springgreen|steelblue|tan|teal|thistle|tomato|transparent|turquoise|violet|wheat|white(smoke)?|yellow(green)?)$/;
-    
+    const namedColorPattern =
+      /^(aliceblue|antiquewhite|aqua(marine)?|azure|beige|bisque|black|blanchedalmond|blue(violet)?|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|dark(blue|cyan|goldenrod|gray|grey|green|khaki|magenta|olivegreen|orange|orchid|red|salmon|seagreen|slateblue|slategray|slategrey|turquoise|violet)|deep(pink|skyblue)|dim(gray|grey)|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold(enrod)?|gray|grey|green(yellow)?|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender(blush)?|lawngreen|lemonchiffon|light(blue|coral|cyan|goldenrodyellow|gray|grey|green|pink|salmon|seagreen|skyblue|slategray|slategrey|steelblue|yellow)|lime(green)?|linen|magenta|maroon|medium(aquamarine|blue|orchid|purple|seagreen|slateblue|springgreen|turquoise|violetred)|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive(drab)?|orange(red)?|orchid|pale(goldenrod|green|turquoise|violetred)|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slate(gray|grey)|snow|springgreen|steelblue|tan|teal|thistle|tomato|transparent|turquoise|violet|wheat|white(smoke)?|yellow(green)?)$/;
+
     if (namedColorPattern.test(lower)) {
       return null;
     }
@@ -290,19 +343,33 @@ function validateLogoSrc(value: string, field: string): ValidationError | null {
     return {
       field,
       value: '[truncated]',
-      message: 'must be a data URL (data:image/...;base64,...) or SVG string (<svg...)',
+      message:
+        'must be a data URL (data:image/...;base64,...) or SVG string (<svg...)',
     };
   }
 
   if (value.startsWith('data:')) {
     const parts = value.split(',');
-    if (parts.length !== 2 || !parts[1] || !/^[A-Za-z0-9+/]*={0,2}$/.test(parts[1]) || parts[1].length % 4 !== 0) {
-      return { field, value: '[truncated]', message: 'data URL contains invalid base64 encoding' };
+    if (
+      parts.length !== 2 ||
+      !parts[1] ||
+      !/^[A-Za-z0-9+/]*={0,2}$/.test(parts[1]) ||
+      parts[1].length % 4 !== 0
+    ) {
+      return {
+        field,
+        value: '[truncated]',
+        message: 'data URL contains invalid base64 encoding',
+      };
     }
   }
 
   if (isSvgString && !value.includes('</svg>')) {
-    return { field, value: '[truncated]', message: 'SVG string is incomplete (missing closing </svg> tag)' };
+    return {
+      field,
+      value: '[truncated]',
+      message: 'SVG string is incomplete (missing closing </svg> tag)',
+    };
   }
 
   return null;
@@ -378,14 +445,24 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
   const errors = validateSchema(normalized, schema);
 
   // Special handling for border.shape (allows 'none')
-  if (normalized.border?.shape !== undefined && normalized.border.shape !== 'none') {
-    const err = validateEnum(normalized.border.shape, 'border.shape', BorderShapes);
+  if (
+    normalized.border?.shape !== undefined &&
+    normalized.border.shape !== 'none'
+  ) {
+    const err = validateEnum(
+      normalized.border.shape,
+      'border.shape',
+      BorderShapes
+    );
     if (err) errors.push(err);
   }
 
   // Special handling for logo.src (required when logo provided)
   if (normalized.logo) {
-    const err = validateField(normalized.logo.src, 'logo.src', { type: 'logoSrc', optional: false });
+    const err = validateField(normalized.logo.src, 'logo.src', {
+      type: 'logoSrc',
+      optional: false,
+    });
     if (err) errors.push(err);
   }
 
@@ -427,7 +504,11 @@ export function validateQRInput(input: unknown): void {
 
   if (typeof input === 'string') {
     if (!input) {
-      errors.push({ field: 'input', value: input, message: 'string input cannot be empty' });
+      errors.push({
+        field: 'input',
+        value: input,
+        message: 'string input cannot be empty',
+      });
     }
     if (errors.length > 0) {
       throw new QRValidationError(errors);
@@ -439,7 +520,8 @@ export function validateQRInput(input: unknown): void {
     errors.push({
       field: 'input',
       value: input,
-      message: 'must be a string or structured content object with a type property',
+      message:
+        'must be a string or structured content object with a type property',
     });
     throw new QRValidationError(errors);
   }
@@ -448,13 +530,22 @@ export function validateQRInput(input: unknown): void {
 
   switch (inputWithType.type) {
     case 'wifi':
-      validateWiFiData((input as Extract<QRInput, { type: 'wifi' }>).data, errors);
+      validateWiFiData(
+        (input as Extract<QRInput, { type: 'wifi' }>).data,
+        errors
+      );
       break;
     case 'vcard':
-      validateVCardData((input as Extract<QRInput, { type: 'vcard' }>).data, errors);
+      validateVCardData(
+        (input as Extract<QRInput, { type: 'vcard' }>).data,
+        errors
+      );
       break;
     case 'calendar':
-      validateCalendarData((input as Extract<QRInput, { type: 'calendar' }>).data, errors);
+      validateCalendarData(
+        (input as Extract<QRInput, { type: 'calendar' }>).data,
+        errors
+      );
       break;
     case 'email':
       validateEmailInput(input as object, errors);
@@ -472,7 +563,8 @@ export function validateQRInput(input: unknown): void {
       errors.push({
         field: 'input.type',
         value: inputWithType.type,
-        message: 'must be one of: url, vcard, wifi, calendar, email, sms, phone',
+        message:
+          'must be one of: url, vcard, wifi, calendar, email, sms, phone',
       });
   }
 
@@ -486,22 +578,39 @@ export function validateQRInput(input: unknown): void {
  */
 function validateWiFiData(data: unknown, errors: ValidationError[]): void {
   if (!data || typeof data !== 'object') {
-    errors.push({ field: 'wifi.data', value: data, message: 'must be an object' });
+    errors.push({
+      field: 'wifi.data',
+      value: data,
+      message: 'must be an object',
+    });
     return;
   }
 
   const wifi = data as Partial<WiFiData>;
 
   if (!wifi.ssid || typeof wifi.ssid !== 'string' || !wifi.ssid.trim()) {
-    errors.push({ field: 'wifi.ssid', value: wifi.ssid, message: 'is required and must be non-empty' });
+    errors.push({
+      field: 'wifi.ssid',
+      value: wifi.ssid,
+      message: 'is required and must be non-empty',
+    });
   }
 
   if (!wifi.password || typeof wifi.password !== 'string') {
-    errors.push({ field: 'wifi.password', value: wifi.password, message: 'is required and must be a string' });
+    errors.push({
+      field: 'wifi.password',
+      value: wifi.password,
+      message: 'is required and must be a string',
+    });
   }
 
   if (wifi.encryption !== undefined) {
-    const validEncryption: Array<WiFiData['encryption']> = ['WPA', 'WPA2', 'WEP', 'nopass'];
+    const validEncryption: Array<WiFiData['encryption']> = [
+      'WPA',
+      'WPA2',
+      'WEP',
+      'nopass',
+    ];
     if (!validEncryption.includes(wifi.encryption)) {
       errors.push({
         field: 'wifi.encryption',
@@ -512,7 +621,11 @@ function validateWiFiData(data: unknown, errors: ValidationError[]): void {
   }
 
   if (wifi.hidden !== undefined && typeof wifi.hidden !== 'boolean') {
-    errors.push({ field: 'wifi.hidden', value: wifi.hidden, message: 'must be a boolean' });
+    errors.push({
+      field: 'wifi.hidden',
+      value: wifi.hidden,
+      message: 'must be a boolean',
+    });
   }
 }
 
@@ -521,21 +634,39 @@ function validateWiFiData(data: unknown, errors: ValidationError[]): void {
  */
 function validateVCardData(data: unknown, errors: ValidationError[]): void {
   if (!data || typeof data !== 'object') {
-    errors.push({ field: 'vcard.data', value: data, message: 'must be an object' });
+    errors.push({
+      field: 'vcard.data',
+      value: data,
+      message: 'must be an object',
+    });
     return;
   }
 
   const vcard = data as Partial<VCardData>;
 
   if (!vcard.name || typeof vcard.name !== 'string' || !vcard.name.trim()) {
-    errors.push({ field: 'vcard.name', value: vcard.name, message: 'is required and must be non-empty' });
+    errors.push({
+      field: 'vcard.name',
+      value: vcard.name,
+      message: 'is required and must be non-empty',
+    });
   }
 
-  if (vcard.email !== undefined && (typeof vcard.email !== 'string' || !isValidEmail(vcard.email))) {
-    errors.push({ field: 'vcard.email', value: vcard.email, message: 'must be a valid email address' });
+  if (
+    vcard.email !== undefined &&
+    (typeof vcard.email !== 'string' || !isValidEmail(vcard.email))
+  ) {
+    errors.push({
+      field: 'vcard.email',
+      value: vcard.email,
+      message: 'must be a valid email address',
+    });
   }
 
-  if (vcard.phone !== undefined && (typeof vcard.phone !== 'string' || !isValidPhone(vcard.phone))) {
+  if (
+    vcard.phone !== undefined &&
+    (typeof vcard.phone !== 'string' || !isValidPhone(vcard.phone))
+  ) {
     errors.push({
       field: 'vcard.phone',
       value: vcard.phone,
@@ -543,12 +674,23 @@ function validateVCardData(data: unknown, errors: ValidationError[]): void {
     });
   }
 
-  if (vcard.url !== undefined && (typeof vcard.url !== 'string' || !isValidURL(vcard.url))) {
-    errors.push({ field: 'vcard.url', value: vcard.url, message: 'must be a valid URL' });
+  if (
+    vcard.url !== undefined &&
+    (typeof vcard.url !== 'string' || !isValidURL(vcard.url))
+  ) {
+    errors.push({
+      field: 'vcard.url',
+      value: vcard.url,
+      message: 'must be a valid URL',
+    });
   }
 
   if (vcard.address !== undefined && typeof vcard.address !== 'object') {
-    errors.push({ field: 'vcard.address', value: vcard.address, message: 'must be an object' });
+    errors.push({
+      field: 'vcard.address',
+      value: vcard.address,
+      message: 'must be an object',
+    });
   }
 }
 
@@ -557,14 +699,26 @@ function validateVCardData(data: unknown, errors: ValidationError[]): void {
  */
 function validateCalendarData(data: unknown, errors: ValidationError[]): void {
   if (!data || typeof data !== 'object') {
-    errors.push({ field: 'calendar.data', value: data, message: 'must be an object' });
+    errors.push({
+      field: 'calendar.data',
+      value: data,
+      message: 'must be an object',
+    });
     return;
   }
 
   const calendar = data as Partial<CalendarData>;
 
-  if (!calendar.title || typeof calendar.title !== 'string' || !calendar.title.trim()) {
-    errors.push({ field: 'calendar.title', value: calendar.title, message: 'is required and must be non-empty' });
+  if (
+    !calendar.title ||
+    typeof calendar.title !== 'string' ||
+    !calendar.title.trim()
+  ) {
+    errors.push({
+      field: 'calendar.title',
+      value: calendar.title,
+      message: 'is required and must be non-empty',
+    });
   }
 
   const startDate = parseDate(calendar.startDate);
@@ -585,7 +739,11 @@ function validateCalendarData(data: unknown, errors: ValidationError[]): void {
         message: 'must be a valid Date object or ISO string',
       });
     } else if (startDate && endDate < startDate) {
-      errors.push({ field: 'calendar.endDate', value: calendar.endDate, message: 'must be after startDate' });
+      errors.push({
+        field: 'calendar.endDate',
+        value: calendar.endDate,
+        message: 'must be after startDate',
+      });
     }
   }
 }
@@ -596,16 +754,32 @@ function validateCalendarData(data: unknown, errors: ValidationError[]): void {
 function validateEmailInput(input: object, errors: ValidationError[]): void {
   const data = input as Partial<Extract<QRInput, { type: 'email' }>>;
 
-  if (!data.email || typeof data.email !== 'string' || !isValidEmail(data.email)) {
-    errors.push({ field: 'email.email', value: data.email, message: 'is required and must be a valid email address' });
+  if (
+    !data.email ||
+    typeof data.email !== 'string' ||
+    !isValidEmail(data.email)
+  ) {
+    errors.push({
+      field: 'email.email',
+      value: data.email,
+      message: 'is required and must be a valid email address',
+    });
   }
 
   if (data.subject !== undefined && typeof data.subject !== 'string') {
-    errors.push({ field: 'email.subject', value: data.subject, message: 'must be a string' });
+    errors.push({
+      field: 'email.subject',
+      value: data.subject,
+      message: 'must be a string',
+    });
   }
 
   if (data.body !== undefined && typeof data.body !== 'string') {
-    errors.push({ field: 'email.body', value: data.body, message: 'must be a string' });
+    errors.push({
+      field: 'email.body',
+      value: data.body,
+      message: 'must be a string',
+    });
   }
 }
 
@@ -615,12 +789,24 @@ function validateEmailInput(input: object, errors: ValidationError[]): void {
 function validateSMSInput(input: object, errors: ValidationError[]): void {
   const data = input as Partial<Extract<QRInput, { type: 'sms' }>>;
 
-  if (!data.phone || typeof data.phone !== 'string' || !isValidPhone(data.phone)) {
-    errors.push({ field: 'sms.phone', value: data.phone, message: 'is required and must be a valid phone number' });
+  if (
+    !data.phone ||
+    typeof data.phone !== 'string' ||
+    !isValidPhone(data.phone)
+  ) {
+    errors.push({
+      field: 'sms.phone',
+      value: data.phone,
+      message: 'is required and must be a valid phone number',
+    });
   }
 
   if (data.message !== undefined && typeof data.message !== 'string') {
-    errors.push({ field: 'sms.message', value: data.message, message: 'must be a string' });
+    errors.push({
+      field: 'sms.message',
+      value: data.message,
+      message: 'must be a string',
+    });
   }
 }
 
@@ -630,8 +816,16 @@ function validateSMSInput(input: object, errors: ValidationError[]): void {
 function validatePhoneInput(input: object, errors: ValidationError[]): void {
   const data = input as Partial<Extract<QRInput, { type: 'phone' }>>;
 
-  if (!data.phone || typeof data.phone !== 'string' || !isValidPhone(data.phone)) {
-    errors.push({ field: 'phone.phone', value: data.phone, message: 'is required and must be a valid phone number' });
+  if (
+    !data.phone ||
+    typeof data.phone !== 'string' ||
+    !isValidPhone(data.phone)
+  ) {
+    errors.push({
+      field: 'phone.phone',
+      value: data.phone,
+      message: 'is required and must be a valid phone number',
+    });
   }
 }
 
@@ -642,6 +836,10 @@ function validateURLInput(input: object, errors: ValidationError[]): void {
   const data = input as Partial<Extract<QRInput, { type: 'url' }>>;
 
   if (!data.url || typeof data.url !== 'string' || !isValidURL(data.url)) {
-    errors.push({ field: 'url.url', value: data.url, message: 'is required and must be a valid URL' });
+    errors.push({
+      field: 'url.url',
+      value: data.url,
+      message: 'is required and must be a valid URL',
+    });
   }
 }
