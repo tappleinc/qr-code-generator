@@ -36,22 +36,6 @@ export function getFinderPatterns(
 }
 
 /**
- * Determine the appropriate middle layer shape based on eye frame shape.
- * The white gap must match the outer ring shape for scanner compatibility.
- */
-export function getMiddleLayerShape(eyeFrameShape: string): string {
-  // For circular/rounded frames, use matching middle layer shape
-  // For square frames, keep square middle layer
-  switch (eyeFrameShape) {
-    case 'squircle':
-      return 'squircle';
-    case 'square':
-    default:
-      return 'square';
-  }
-}
-
-/**
  * Calculate safe logo size
  * Best practices: 20-30% of QR code size is generally safe with proper error correction
  * Clamp to safe range (10-30%)

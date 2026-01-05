@@ -159,30 +159,6 @@ describe('Feature', () => {
 });
 ```
 
-### E2E Test Example:
-```typescript
-import { describe, it, expect } from 'vitest';
-import { buildQRCodeConfig } from '../../src/qrcode';
-import { renderPNGBuffer } from '../../src/internal/rendering/png-renderer';
-import { mergeImageOptions } from '../../src/internal/core/defaults';
-import { ImageOptions } from '../../src/types';  // Public types from src/types
-import jsQR from 'jsqr';
-import { PNG } from 'pngjs';
-
-describe('Scannability', () => {
-  it('should scan correctly', () => {
-    // Merge options once - single source of truth
-    const mergedOptions = mergeImageOptions({ size: 1000 });
-    const qr = buildQRCodeConfig('Test', false);
-    const buffer = renderPNGBuffer(qr, mergedOptions);
-    const png = PNG.sync.read(Buffer.from(buffer));
-    const code = jsQR(new Uint8ClampedArray(png.data), png.width, png.height);
-    
-    expect(code?.data).toBe('Test');
-  });
-});
-```
-
 **Important Testing Pattern:**
 - Import `mergeImageOptions` or `mergeTextOptions` from `src/internal/core/defaults.ts`
 - Use public types from `src/types.ts`: `ImageOptions`, `TextOptions`, etc.
