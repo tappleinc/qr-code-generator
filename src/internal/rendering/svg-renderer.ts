@@ -236,8 +236,9 @@ export function renderSVGString(
   const totalSize = size + 2 * margin + 2 * borderWidth;
   const qrOffset = margin + borderWidth; // Offset from edge to QR matrix
 
-  // ViewBox uses pixel coordinates - no module space conversions needed
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalSize} ${totalSize}" width="${totalSize}" height="${totalSize}">`;
+  // ViewBox defines the coordinate system; no width/height for true scalability
+  // The viewBox establishes internal coordinates, users can scale via CSS or container sizing
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalSize} ${totalSize}">`;
   svg += `<rect width="${totalSize}" height="${totalSize}" fill="${backgroundColor}"/>`;
 
   // Render border (if enabled)
