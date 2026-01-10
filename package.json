@@ -1,6 +1,6 @@
 {
   "name": "@tapple.io/qr-code-generator",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "Lightweight QR code generator with ESM and CommonJS support",
   "files": [
     "dist",
