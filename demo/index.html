@@ -659,24 +659,28 @@ END:VCALENDAR`
     // Update range value displays
     elements.size.addEventListener('input', () => {
       document.getElementById('sizeValue').textContent = elements.size.value;
-      generateQR();
     });
+    elements.size.addEventListener('change', generateQR);
+    
     elements.margin.addEventListener('input', () => {
       document.getElementById('marginValue').textContent = elements.margin.value;
-      generateQR();
     });
+    elements.margin.addEventListener('change', generateQR);
+    
     elements.dotScale.addEventListener('input', () => {
       document.getElementById('dotScaleValue').textContent = elements.dotScale.value;
-      generateQR();
     });
+    elements.dotScale.addEventListener('change', generateQR);
+    
     elements.borderWidth.addEventListener('input', () => {
       document.getElementById('borderWidthValue').textContent = elements.borderWidth.value;
-      generateQR();
     });
+    elements.borderWidth.addEventListener('change', generateQR);
+    
     elements.logoScale.addEventListener('input', () => {
       document.getElementById('logoScaleValue').textContent = elements.logoScale.value;
-      generateQR();
     });
+    elements.logoScale.addEventListener('change', generateQR);
 
     // Logo controls
     elements.enableLogo.addEventListener('change', () => {
@@ -889,18 +893,21 @@ END:VCALENDAR`
 
     // Add event listeners to all inputs
     elements.content.addEventListener('input', generateQR);
+    
     elements.eyeCornerRadius.addEventListener('input', () => {
       document.getElementById('eyeCornerRadiusValue').textContent = elements.eyeCornerRadius.value;
-      generateQR();
     });
+    elements.eyeCornerRadius.addEventListener('change', generateQR);
+    
     elements.eyeStrokeWidth.addEventListener('input', () => {
       document.getElementById('eyeStrokeWidthValue').textContent = elements.eyeStrokeWidth.value;
-      generateQR();
     });
+    elements.eyeStrokeWidth.addEventListener('change', generateQR);
+    
     elements.borderCornerRadius.addEventListener('input', () => {
       document.getElementById('borderCornerRadiusValue').textContent = elements.borderCornerRadius.value;
-      generateQR();
     });
+    elements.borderCornerRadius.addEventListener('change', generateQR);
     elements.dotShape.addEventListener('change', generateQR);
     elements.borderStyle.addEventListener('change', generateQR);
 
