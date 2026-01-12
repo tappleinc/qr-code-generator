@@ -150,7 +150,7 @@ const ascii = genQrText('Hello', {
 ### Image Options (PNG & SVG)
 
 ```typescript
-import { genQrImage, EyeFrameShape, DotShape, BorderShape } from '@tapple.io/qr-code-generator';
+import { genQrImage, DotShape, BorderStyle } from '@tapple.io/qr-code-generator';
 
 const options = {
   size: 300,                    // QR matrix size in pixels  
@@ -159,8 +159,9 @@ const options = {
   
   // Eye (position marker) styling
   eyes: {
-    shape: EyeFrameShape.SQUIRCLE,  // 'square' | 'squircle'
-    color: '#0066ff'                // Supports all CSS color formats
+    cornerRadius: 0.5,          // 0 = square, 0.5 = circle (default: 0.2)
+    color: '#0066ff',           // Supports all CSS color formats
+    strokeWidth: 1.0            // 0.9-1.1, controls border thickness (default: 1.0)
   },
   
   // Pupil (center of eyes) styling
@@ -183,10 +184,10 @@ const options = {
   
   // Border styling
   border: {
-    shape: BorderShape.SQUIRCLE,  // 'none' | 'square' | 'squircle' | 'circle'
-    width: 10,                    // Border width in pixels
+    cornerRadius: 0.19,           // 0 = square, 0.5 = circle, 0.19 = squircle (default: 0.04)
+    width: 10,                    // Border width in pixels (default: 0 = no border)
     color: 'rgba(0, 0, 0, 0.8)',  // RGBA with transparency supported
-    style: 'solid'                // 'solid' | 'dashed'
+    style: BorderStyle.SOLID      // 'solid' | 'dashed' | 'dotted' | 'double'
   },
   
   // Output configuration
@@ -209,8 +210,9 @@ Complete reference for PNG and SVG rendering options:
 | `margin` | number | `24` | >= 0 | Spacing around QR code in pixels |
 | `backgroundColor` | string | `'#ffffff'` | CSS color | Background color (supports hex, rgb/rgba, hsl/hsla, named colors) |
 | **Eyes (Position Markers)** |
-| `eyes.shape` | enum | `'square'` | `'square'` \| `'squircle'` | Outer frame shape of position markers |
+| `eyes.cornerRadius` | number | `0.2` | 0 - 0.5 | Corner radius scale: 0 = square, 0.5 = circle |
 | `eyes.color` | string | `'#000000'` | CSS color | Color of eye frames (supports hex, rgb/rgba, hsl/hsla, named colors) |
+| `eyes.strokeWidth` | number | `1.0` | 0.9 - 1.1 | Border thickness scale: 1.0 = standard, 1.1 = 10% thicker, 0.9 = 10% thinner |
 | **Pupils (Eye Centers)** |
 | `pupils.color` | string | `'#000000'` | CSS color | Color of pupil (inner square of eyes) |
 | **Dots (Data Modules)** |
@@ -221,10 +223,10 @@ Complete reference for PNG and SVG rendering options:
 | `logo.src` | string | - | Data URL or SVG string | Image source |
 | `logo.scale` | number | `0.2` | 0.1 - 0.3 | Logo size as percentage of QR width |
 | **Border** |
-| `border.shape` | enum | `'none'` | `'none'` \| `'square'` \| `'squircle'` \| `'circle'` | Border shape wrapping the QR code |
-| `border.width` | number | `10` | >=0 | Border thickness in pixels |
+| `border.cornerRadius` | number | `0.04` | 0 - 0.5 | Corner radius scale: 0 = square, 0.5 = circle, 0.19 = squircle |
+| `border.width` | number | `0` | >=0 | Border thickness in pixels (0 = no border) |
 | `border.color` | string | `'#000000'` | CSS color | Border color (supports hex, rgb/rgba, hsl/hsla, named colors) |
-| `border.style` | enum | `'solid'` | `'solid'` \| `'dashed'` | Border line style |
+| `border.style` | enum | `'solid'` | `'solid'` \| `'dashed'` \| `'dotted'` \| `'double'` | Border line style |
 | **Output** |
 | `output.format` | enum | `'png'` | `'png'` \| `'svg'` | Output image format |
 | `output.type` | enum | `'buffer'` | `'buffer'` \| `'dataURL'` (png), `'string'` \| `'dataURL'` (svg) | Output type |
@@ -268,10 +270,10 @@ border: { color: 'red' }
 // You can mix different formats in the same QR code
 const qr = await genQrImage('Hello', {
   backgroundColor: 'white',
-  eyes: { color: '#0066ff' },
+  eyes: { cornerRadius: 0.5, color: '#0066ff' },
   pupils: { color: 'rgb(0, 0, 0)' },
   dots: { color: 'hsl(0, 0%, 20%)' },
-  border: { shape: BorderShape.CIRCLE, color: 'rgba(0, 0, 0, 0.5)' }
+  border: { cornerRadius: 0.5, width: 10, color: 'rgba(0, 0, 0, 0.5)' }
 });
 ```
 
@@ -378,31 +380,23 @@ const qr = await genQrImage({
 const qr = await genQrImage('https://en.wikipedia.org/wiki/Denso');
 ```
 
-## Shape Enums
+## Enums
 
-Import shape enums for type-safe customization:
+Import enums for type-safe customization:
 
 ```typescript
-import { EyeFrameShape, DotShape, BorderShape, BorderStyle } from '@tapple.io/qr-code-generator';
-
-// Eye shapes
-EyeFrameShape.SQUARE
-EyeFrameShape.SQUIRCLE
+import { DotShape, BorderStyle } from '@tapple.io/qr-code-generator';
 
 // Dot shapes
-DotShape.CLASSIC
-DotShape.DOTS
-DotShape.SQUARE
-
-// Border shapes
-BorderShape.NONE
-BorderShape.SQUARE
-BorderShape.SQUIRCLE
-BorderShape.CIRCLE
+DotShape.CLASSIC  // Classic square modules
+DotShape.DOTS     // Circular dots
+DotShape.SQUARE   // Rounded squares
 
 // Border styles
-BorderStyle.SOLID
-BorderStyle.DASHED
+BorderStyle.SOLID   // Solid line
+BorderStyle.DASHED  // Dashed line
+BorderStyle.DOTTED  // Dotted line
+BorderStyle.DOUBLE  // Double line (concentric strokes)
 ```
 
 ## Advanced Examples
@@ -410,14 +404,14 @@ BorderStyle.DASHED
 ### Custom Styled QR Code
 
 ```typescript
-import { genQrImage, EyeFrameShape, DotShape, BorderShape } from '@tapple.io/qr-code-generator';
+import { genQrImage, DotShape, BorderStyle } from '@tapple.io/qr-code-generator';
 
 const styledQR = await genQrImage('https://en.wikipedia.org/wiki/Denso', {
   size: 500,
   margin: 30,
   backgroundColor: '#f8f9fa',
   eyes: {
-    shape: EyeFrameShape.SQUIRCLE,
+    cornerRadius: 0.5,
     color: '#0066ff'
   },
   pupils: {
@@ -429,10 +423,10 @@ const styledQR = await genQrImage('https://en.wikipedia.org/wiki/Denso', {
     scale: 0.9
   },
   border: {
-    shape: BorderShape.SQUIRCLE,
+    cornerRadius: 0.19,
     width: 15,
     color: '#0066ff',
-    style: 'solid'
+    style: BorderStyle.SOLID
   },
   output: { format: 'png', type: 'dataURL' }
 });

@@ -13,7 +13,7 @@ import {
   CalendarData,
   QRInput,
 } from '../../types';
-import { EyeFrameShapes, DotShapes, BorderShapes } from '../rendering/shapes';
+import { DotShapes } from '../rendering/shapes';
 
 // ============================================================================
 // Types and Error Classes
@@ -148,9 +148,9 @@ function validateField(
     case 'borderStyle':
       if (
         typeof value !== 'string' ||
-        (value !== 'solid' && value !== 'dashed')
+        (value !== 'solid' && value !== 'dashed' && value !== 'dotted' && value !== 'double')
       ) {
-        return { field, value, message: 'must be either "solid" or "dashed"' };
+        return { field, value, message: 'must be "solid", "dashed", "dotted", or "double"' };
       }
       return null;
     default:
@@ -430,12 +430,14 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
     size: { type: 'number', min: 21, integer: true, optional: true },
     margin: { type: 'number', min: 0, integer: true, optional: true },
     backgroundColor: { type: 'color', optional: true },
-    'eyes.shape': { type: 'enum', enumObj: EyeFrameShapes, optional: true },
+    'eyes.cornerRadius': { type: 'number', min: 0, max: 0.5, optional: true },
     'eyes.color': { type: 'color', optional: true },
+    'eyes.strokeWidth': { type: 'number', min: 0.9, max: 1.1, optional: true },
     'pupils.color': { type: 'color', optional: true },
     'dots.shape': { type: 'enum', enumObj: DotShapes, optional: true },
     'dots.color': { type: 'color', optional: true },
     'dots.scale': { type: 'number', min: 0.75, max: 1.25, optional: true },
+    'border.cornerRadius': { type: 'number', min: 0, max: 0.5, optional: true },
     'border.color': { type: 'color', optional: true },
     'border.width': { type: 'number', min: 0, integer: true, optional: true },
     'border.style': { type: 'borderStyle', optional: true },
@@ -443,19 +445,6 @@ export function validateImageOptions(options: ImageOptions): ImageOptions {
   };
 
   const errors = validateSchema(normalized, schema);
-
-  // Special handling for border.shape (allows 'none')
-  if (
-    normalized.border?.shape !== undefined &&
-    normalized.border.shape !== 'none'
-  ) {
-    const err = validateEnum(
-      normalized.border.shape,
-      'border.shape',
-      BorderShapes
-    );
-    if (err) errors.push(err);
-  }
 
   // Special handling for logo.src (required when logo provided)
   if (normalized.logo) {

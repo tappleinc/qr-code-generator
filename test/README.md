@@ -58,7 +58,7 @@ Tests individual modules and pure functions without external dependencies.
 Tests end-to-end functionality through the generation pipeline.
 
 - **data-types.test.ts** - Structured content (URL, phone, email, WiFi, vCard, calendar)
-- **options.test.ts** - Style options (size in pixels, margin in pixels, border width, colors, shapes)
+- **options.test.ts** - Style options (size in pixels, margin in pixels, border width, colors, corner radius values)
 - **color-formats.test.ts** - CSS color format support (hex, rgb/rgba, hsl/hsla, named colors, mixed formats)
 - **rendering/** - Rendering output formats (subfolder)
   - **svg.test.ts** - SVG string/dataURL structure and validity

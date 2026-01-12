@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { genQrImage, genQrText, EyeFrameShape, DotShape } from '../../src/index';
+import { genQrImage, genQrText, DotShape } from '../../src/index';
 
 describe('Options', () => {
   const testInput = 'Hello World';
@@ -106,12 +106,12 @@ describe('Options', () => {
   });
   
   describe('Shape options', () => {
-    it('should accept eye frame shapes', async () => {
-      const shapes = Object.values(EyeFrameShape);
+    it('should accept eye frame corner radius values', async () => {
+      const radii = [0, 0.1, 0.25, 0.5];
       
-      for (const shape of shapes) {
+      for (const cornerRadius of radii) {
         const result = await genQrImage(testInput, { 
-          eyes: { shape },
+          eyes: { cornerRadius },
           output: { format: 'svg', type: 'string' }
         }) as string;
         expect(result).toContain('<svg');
@@ -132,7 +132,7 @@ describe('Options', () => {
     
     it('should accept shape combinations', async () => {
       const result = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+        eyes: { cornerRadius: 0.25 },
         dots: { shape: DotShape.DOTS },
         output: { format: 'svg', type: 'string' }
       }) as string;
@@ -141,7 +141,7 @@ describe('Options', () => {
     
     it('should accept custom colors for shapes', async () => {
       const result = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUARE, color: '#FF0000' },
+        eyes: { cornerRadius: 0, color: '#FF0000' },
         pupils: { color: '#00FF00' },
         dots: { shape: DotShape.CLASSIC, color: '#0000FF' },
         output: { format: 'svg', type: 'string' }
@@ -181,7 +181,7 @@ describe('Options', () => {
         size: 500,
         margin: 4,
         backgroundColor: '#FFFFFF',
-        eyes: { shape: EyeFrameShape.SQUIRCLE, color: '#FF0000' },
+        eyes: { cornerRadius: 0.25, color: '#FF0000' },
         pupils: { color: '#000000' },
         dots: { shape: DotShape.DOTS, color: '#000000' },
         output: { format: 'svg', type: 'string' }

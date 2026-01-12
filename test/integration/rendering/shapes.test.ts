@@ -1,41 +1,86 @@
 /**
  * Rendering Tests - Shape Rendering
  * 
- * Tests different eye frame and data dot shape rendering.
+ * Tests different eye frame corner radius and data dot shape rendering.
  */
 
 import { describe, it, expect } from 'vitest';
 import { genQrImage } from '../../../src/index';
-import { EyeFrameShape, DotShape } from '../../../src/types';
+import { DotShape } from '../../../src/types';
 
 describe('Shape Rendering', () => {
   const testInput = 'Hello World';
   
-  describe('Eye frame shapes', () => {
-    it('should render square eye frames', async () => {
+  describe('Eye frame corner radius', () => {
+    it('should render square eye frames (cornerRadius: 0)', async () => {
       const svg = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUARE },
+        eyes: { cornerRadius: 0 },
+        output: { format: 'svg', type: 'string' }
+      }) as string;
+      
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('rx="0"');
+    });
+    
+    it('should render rounded eye frames (cornerRadius: 0.25)', async () => {
+      const svg = await genQrImage(testInput, { 
+        eyes: { cornerRadius: 0.25 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
       expect(svg).toContain('<svg');
     });
     
-    it('should render squircle eye frames', async () => {
+    it('should render circular eye frames (cornerRadius: 0.5)', async () => {
       const svg = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+        eyes: { cornerRadius: 0.5 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
       expect(svg).toContain('<svg');
     });
     
-    it('should render all eye frame shapes', async () => {
-      const shapes = Object.values(EyeFrameShape);
+    it('should render various corner radius values', async () => {
+      const radii = [0, 0.1, 0.2, 0.3, 0.4, 0.5];
       
-      for (const shape of shapes) {
+      for (const cornerRadius of radii) {
         const svg = await genQrImage(testInput, { 
-          eyes: { shape },
+          eyes: { cornerRadius },
+          output: { format: 'svg', type: 'string' }
+        }) as string;
+        
+        expect(svg).toContain('<svg');
+      }
+    });
+  });
+  
+  describe('Eye frame stroke width', () => {
+    it('should render standard eye frames (strokeWidth: 1.0)', async () => {
+      const svg = await genQrImage(testInput, { 
+        eyes: { strokeWidth: 1.0 },
+        output: { format: 'svg', type: 'string' }
+      }) as string;
+      
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('fill=');
+    });
+    
+    it('should render thicker eye frames (strokeWidth: 1.1)', async () => {
+      const svg = await genQrImage(testInput, { 
+        eyes: { strokeWidth: 1.1 },
+        output: { format: 'svg', type: 'string' }
+      }) as string;
+      
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('fill=');
+    });
+    
+    it('should render various stroke widths', async () => {
+      const strokeWidths = [0.9, 0.95, 1.0, 1.05, 1.1];
+      
+      for (const strokeWidth of strokeWidths) {
+        const svg = await genQrImage(testInput, { 
+          eyes: { strokeWidth },
           output: { format: 'svg', type: 'string' }
         }) as string;
         
@@ -87,14 +132,14 @@ describe('Shape Rendering', () => {
   });
   
   describe('Shape combinations', () => {
-    it('should handle all eye × dot combinations', async () => {
-      const eyeShapes = Object.values(EyeFrameShape);
+    it('should handle eye cornerRadius × dot combinations', async () => {
+      const eyeRadii = [0, 0.25, 0.5];
       const dotShapes = Object.values(DotShape);
       
-      for (const eyeShape of eyeShapes) {
+      for (const cornerRadius of eyeRadii) {
         for (const dotShape of dotShapes) {
           const svg = await genQrImage(testInput, { 
-            eyes: { shape: eyeShape },
+            eyes: { cornerRadius },
             dots: { shape: dotShape },
             output: { format: 'svg', type: 'string' }
           }) as string;
@@ -104,19 +149,35 @@ describe('Shape Rendering', () => {
       }
     });
     
-    it('should generate different output for different shapes', async () => {
+    it('should handle cornerRadius × strokeWidth combinations', async () => {
+      const cornerRadii = [0, 0.25, 0.5];
+      const strokeWidths = [0.9, 1.0, 1.1];
+      
+      for (const cornerRadius of cornerRadii) {
+        for (const strokeWidth of strokeWidths) {
+          const svg = await genQrImage(testInput, { 
+            eyes: { cornerRadius, strokeWidth },
+            output: { format: 'svg', type: 'string' }
+          }) as string;
+          
+          expect(svg).toContain('<svg');
+        }
+      }
+    });
+    
+    it('should generate different output for different corner radii', async () => {
       const square = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUARE },
+        eyes: { cornerRadius: 0 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
-      const squircle = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+      const rounded = await genQrImage(testInput, { 
+        eyes: { cornerRadius: 0.5 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
-      // Different shapes should produce different SVG
-      expect(square).not.toBe(squircle);
+      // Different radii should produce different SVG
+      expect(square).not.toBe(rounded);
     });
   });
   
@@ -124,7 +185,7 @@ describe('Shape Rendering', () => {
     it('should apply custom colors to eye frames', async () => {
       const svg = await genQrImage(testInput, { 
         eyes: { 
-          shape: EyeFrameShape.SQUARE,
+          cornerRadius: 0,
           color: '#FF0000'
         },
         output: { format: 'svg', type: 'string' }
@@ -156,7 +217,7 @@ describe('Shape Rendering', () => {
     
     it('should apply different colors to different elements', async () => {
       const svg = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUARE, color: '#FF0000' },
+        eyes: { cornerRadius: 0, color: '#FF0000' },
         pupils: { color: '#00FF00' },
         dots: { shape: DotShape.CLASSIC, color: '#0000FF' },
         output: { format: 'svg', type: 'string' }
@@ -170,13 +231,13 @@ describe('Shape Rendering', () => {
   
   describe('PNG shape rendering', () => {
     it('should render shapes in PNG format', async () => {
-      const eyeShapes = Object.values(EyeFrameShape);
+      const eyeRadii = [0, 0.25, 0.5];
       const dotShapes = Object.values(DotShape);
       
-      for (const eyeShape of eyeShapes) {
+      for (const cornerRadius of eyeRadii) {
         for (const dotShape of dotShapes) {
           const buffer = await genQrImage(testInput, { 
-            eyes: { shape: eyeShape },
+            eyes: { cornerRadius },
             dots: { shape: dotShape },
             output: { format: 'png', type: 'buffer' }
           }) as Uint8Array;
@@ -189,14 +250,14 @@ describe('Shape Rendering', () => {
   });
   
   describe('Shape consistency', () => {
-    it('should produce consistent output for same shape', async () => {
+    it('should produce consistent output for same corner radius', async () => {
       const svg1 = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+        eyes: { cornerRadius: 0.25 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
       const svg2 = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+        eyes: { cornerRadius: 0.25 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -215,7 +276,7 @@ describe('Shape Rendering', () => {
     
     it('should allow partial shape specification', async () => {
       const svgEyesOnly = await genQrImage(testInput, { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+        eyes: { cornerRadius: 0.25 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       

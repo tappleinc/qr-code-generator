@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { genQrImage, genQrText, BorderShape } from '../../src/index';
+import { genQrImage, genQrText } from '../../src/index';
 import { scanQRCode } from '../helpers/qr-scanner';
 
 describe('Color Formats', () => {
@@ -151,7 +151,7 @@ describe('Color Formats', () => {
         dots: { color: 'black' },
         eyes: { color: 'red' },
         pupils: { color: 'blue' },
-        border: { shape: BorderShape.SQUARE, color: 'green' },
+        border: { cornerRadius: 0, width: 10, color: 'green' },
         output: { format: 'svg', type: 'string' },
       });
 
@@ -159,7 +159,7 @@ describe('Color Formats', () => {
       expect(result).toContain('fill="black"');
       expect(result).toContain('fill="red"');
       expect(result).toContain('fill="blue"');
-      expect(result).toContain('fill="green"');
+      expect(result).toContain('stroke="green"');
     });
 
     it('should produce scannable QR codes with named colors', async () => {
@@ -192,7 +192,7 @@ describe('Color Formats', () => {
         dots: { color: 'rgb(0, 0, 0)' },
         eyes: { color: 'hsl(0, 100%, 50%)' },
         pupils: { color: 'blue' },
-        border: { shape: BorderShape.CIRCLE, color: 'rgba(0, 128, 0, 0.8)' },
+        border: { cornerRadius: 0, width: 10, color: 'rgba(0, 128, 0, 0.8)' },
         output: { format: 'svg', type: 'string' },
       });
 
@@ -200,7 +200,7 @@ describe('Color Formats', () => {
       expect(result).toContain('fill="rgb(0, 0, 0)"');
       expect(result).toContain('fill="hsl(0, 100%, 50%)"');
       expect(result).toContain('fill="blue"');
-      expect(result).toContain('fill="rgba(0, 128, 0, 0.8)"');
+      expect(result).toContain('stroke="rgba(0, 128, 0, 0.8)"');
     });
 
     it('should produce scannable QR codes with mixed formats', async () => {

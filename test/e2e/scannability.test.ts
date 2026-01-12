@@ -7,8 +7,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { genQrImage, BorderShape } from '../../src/index';
-import { EyeFrameShape, DotShape, ImageOptions } from '../../src/types';
+import { genQrImage } from '../../src/index';
+import { DotShape, ImageOptions } from '../../src/types';
 import { scanQRCode } from '../helpers/qr-scanner';
 import { logWarning } from '../helpers/test-utils';
 
@@ -152,17 +152,17 @@ describe('QR Code Scannability', () => {
   });
   
   describe('Shape variations', () => {
-    it('should scan with square eye frames', async () => {
+    it('should scan with square eye frames (cornerRadius: 0)', async () => {
       const result = await generateAndScan('Shape test', { 
-        eyes: { shape: EyeFrameShape.SQUARE } 
+        eyes: { cornerRadius: 0 } 
       });
       
       expect(result.success).toBe(true);
     });
     
-    it('should scan with squircle eye frames', async () => {
+    it('should scan with circular eye frames (cornerRadius: 0.5)', async () => {
       const result = await generateAndScan('Shape test', { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE } 
+        eyes: { cornerRadius: 0.5 } 
       });
       
       expect(result.success).toBe(true);
@@ -187,9 +187,9 @@ describe('QR Code Scannability', () => {
   
   describe('Shape combinations (sample)', () => {
     // Test representative combinations, not exhaustive
-    it('should scan squircle eyes + circular dots', async () => {
+    it('should scan rounded eyes + circular dots', async () => {
       const result = await generateAndScan('Combo test', { 
-        eyes: { shape: EyeFrameShape.SQUIRCLE },
+        eyes: { cornerRadius: 0.25 },
         dots: { shape: DotShape.DOTS }
       });
       
@@ -298,7 +298,7 @@ describe('QR Code Scannability', () => {
   describe('Border scannability', () => {
     it('should scan QR with circle border', async () => {
       const result = await generateAndScan('CircleBorder', {
-        border: { shape: BorderShape.CIRCLE, width: 30 },
+        border: { cornerRadius: 0.5, width: 30 },
         margin: 10
       });
       
@@ -308,7 +308,7 @@ describe('QR Code Scannability', () => {
     
     it('should scan QR with border and minimal margin', async () => {
       const result = await generateAndScan('MinimalMargin', {
-        border: { shape: BorderShape.CIRCLE, width: 20 },
+        border: { cornerRadius: 0.5, width: 20 },
         margin: 5
       });
       
@@ -318,7 +318,7 @@ describe('QR Code Scannability', () => {
     
     it('should scan QR with squircle border', async () => {
       const result = await generateAndScan('SquircleBorder', {
-        border: { shape: BorderShape.SQUIRCLE, width: 25 },
+        border: { cornerRadius: 0.19, width: 25 },
         margin: 8
       });
       

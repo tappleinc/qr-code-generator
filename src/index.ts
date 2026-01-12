@@ -41,4 +41,4 @@ export type {
 } from './types';
 
 // Shape enums (for type-safe shape specifications)
-export { EyeFrameShape, DotShape, BorderShape, BorderStyle } from './types';
+export { DotShape, BorderStyle } from './types';

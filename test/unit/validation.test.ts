@@ -8,9 +8,7 @@ import { describe, it, expect } from 'vitest';
 import {
   genQrImage,
   QRValidationError,
-  EyeFrameShape,
   DotShape,
-  BorderShape,
 } from '../../src/index';
 
 describe('Input Validation', () => {
@@ -21,9 +19,9 @@ describe('Input Validation', () => {
           size: 300,
           margin: 24,
           backgroundColor: '#ffffff',
-          eyes: { shape: EyeFrameShape.SQUARE, color: '#000000' },
+          eyes: { cornerRadius: 0, color: '#000000' },
           dots: { scale: 1.0 },
-          border: { shape: BorderShape.SQUARE, width: 10 },
+          border: { cornerRadius: 0, width: 10 },
           output: { format: 'png', type: 'buffer' },
         })
       ).resolves.not.toThrow();
@@ -55,13 +53,13 @@ describe('Input Validation', () => {
 
     it('should reject invalid borderWidth (decimal)', async () => {
       await expect(
-        genQrImage('test', { border: { shape: BorderShape.SQUARE, width: 10.3 } })
+        genQrImage('test', { border: { cornerRadius: 0, width: 10.3 } })
       ).rejects.toThrow(QRValidationError);
     });
 
     it('should reject invalid borderWidth (negative)', async () => {
       await expect(
-        genQrImage('test', { border: { shape: BorderShape.SQUARE, width: -5 } })
+        genQrImage('test', { border: { cornerRadius: 0, width: -5 } })
       ).rejects.toThrow(QRValidationError);
     });
 
@@ -178,7 +176,7 @@ describe('Input Validation', () => {
         genQrImage('test', { pupils: { color: 'blue' } })
       ).resolves.not.toThrow();
       await expect(
-        genQrImage('test', { border: { shape: BorderShape.SQUARE, color: 'green' } })
+        genQrImage('test', { border: { cornerRadius: 0, color: 'green' } })
       ).resolves.not.toThrow();
       await expect(
         genQrImage('test', { backgroundColor: 'transparent' })
@@ -237,10 +235,12 @@ describe('Input Validation', () => {
       ).rejects.toThrow(QRValidationError);
     });
 
-    it('should reject invalid eye shape', async () => {
+    it('should reject invalid eye cornerRadius (out of range)', async () => {
       await expect(
-        // @ts-expect-error Testing invalid shape
-        genQrImage('test', { eyes: { shape: 'invalid' } })
+        genQrImage('test', { eyes: { cornerRadius: -0.1 } })
+      ).rejects.toThrow(QRValidationError);
+      await expect(
+        genQrImage('test', { eyes: { cornerRadius: 0.6 } })
       ).rejects.toThrow(QRValidationError);
     });
 
@@ -251,17 +251,21 @@ describe('Input Validation', () => {
       ).rejects.toThrow(QRValidationError);
     });
 
-    it('should reject invalid border shape', async () => {
+    it('should reject invalid border cornerRadius', async () => {
       await expect(
-        // @ts-expect-error Testing invalid shape
-        genQrImage('test', { border: { shape: 'invalid' } })
+        // @ts-expect-error Testing invalid cornerRadius
+        genQrImage('test', { border: { cornerRadius: -0.1 } })
+      ).rejects.toThrow(QRValidationError);
+      await expect(
+        // @ts-expect-error Testing invalid cornerRadius
+        genQrImage('test', { border: { cornerRadius: 0.6 } })
       ).rejects.toThrow(QRValidationError);
     });
 
     it('should reject invalid border style', async () => {
       await expect(
         // @ts-expect-error Testing invalid style
-        genQrImage('test', { border: { shape: BorderShape.SQUARE, style: 'invalid' } })
+        genQrImage('test', { border: { cornerRadius: 0, style: 'invalid' } })
       ).rejects.toThrow(QRValidationError);
     });
 
@@ -283,12 +287,15 @@ describe('Input Validation', () => {
       }
     });
 
-    it('should accept valid eye shapes', async () => {
+    it('should accept valid eye cornerRadius values', async () => {
       await expect(
-        genQrImage('test', { eyes: { shape: EyeFrameShape.SQUARE } })
+        genQrImage('test', { eyes: { cornerRadius: 0 } })
       ).resolves.not.toThrow();
       await expect(
-        genQrImage('test', { eyes: { shape: EyeFrameShape.SQUIRCLE } })
+        genQrImage('test', { eyes: { cornerRadius: 0.25 } })
+      ).resolves.not.toThrow();
+      await expect(
+        genQrImage('test', { eyes: { cornerRadius: 0.5 } })
       ).resolves.not.toThrow();
     });
 
@@ -304,18 +311,15 @@ describe('Input Validation', () => {
       ).resolves.not.toThrow();
     });
 
-    it('should accept valid border shapes', async () => {
+    it('should accept valid border cornerRadius values', async () => {
       await expect(
-        genQrImage('test', { border: { shape: BorderShape.NONE } })
+        genQrImage('test', { border: { cornerRadius: 0 } })
       ).resolves.not.toThrow();
       await expect(
-        genQrImage('test', { border: { shape: BorderShape.SQUARE } })
+        genQrImage('test', { border: { cornerRadius: 0.19 } })
       ).resolves.not.toThrow();
       await expect(
-        genQrImage('test', { border: { shape: BorderShape.SQUIRCLE } })
-      ).resolves.not.toThrow();
-      await expect(
-        genQrImage('test', { border: { shape: BorderShape.CIRCLE } })
+        genQrImage('test', { border: { cornerRadius: 0.5 } })
       ).resolves.not.toThrow();
     });
 

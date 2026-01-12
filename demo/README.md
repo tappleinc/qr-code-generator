@@ -26,9 +26,9 @@ The interactive demo allows you to customize:
 ### Visual Styling
 - **Size & Margin**: Adjust QR matrix pixel size and margin spacing (in pixels)
 - **Colors**: Customize background, eyes, pupils, and dots with any CSS color format (hex, rgb, rgba, hsl, hsla, named colors)
-- **Shapes**: Choose from multiple eye, dot, and border shapes
+- **Shapes**: Choose from multiple data dot shapes, adjust eye corner radius (0-0.5), and border corner radius (0-0.5)
 - **Dot Scale**: Fine-tune visual dot size (0.75-1.25)
-- **Border**: Add decorative borders with custom shapes, widths (in pixels), and styles
+- **Border**: Add decorative borders with adjustable corner radius, widths (in pixels), and styles (solid, dashed, dotted, double)
 
 ### Advanced Features
 - **Logo Embedding**: Add a logo to the center of your QR code

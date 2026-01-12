@@ -5,7 +5,7 @@
 
 import { writeFileSync } from 'fs';
 import { genQrImage } from '../../src/index';
-import { EyeFrameShape, DotShape, ImageOptions } from '../../src/types';
+import { DotShape, ImageOptions } from '../../src/types';
 
 interface TestCase {
   name: string;
@@ -25,10 +25,10 @@ const failedTests: TestCase[] = [
     options: { dots: { shape: DotShape.SQUARE } }
   },
   {
-    name: 'squircle-eyes-circular-dots',
+    name: 'rounded-eyes-circular-dots',
     input: 'Combo test',
     options: {
-      eyes: { shape: EyeFrameShape.SQUIRCLE },
+      eyes: { cornerRadius: 0.25 },
       dots: { shape: DotShape.DOTS }
     }
   }

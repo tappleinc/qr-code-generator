@@ -149,11 +149,28 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
+      min-height: 290px;
+      aspect-ratio: 1 / 1;
+      position: relative;
     }
 
     .qr-display img {
       max-width: 250px;
       max-height: 250px; 
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0983b3;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .download-buttons {
@@ -371,11 +388,15 @@
         <div class="section">
           <h2>Shapes</h2>
           <div class="form-group">
-            <label for="eyeShape">Eye Frame Shape</label>
-            <select id="eyeShape">
-              <option value="square">Square</option>
-              <option value="squircle" selected>Squircle</option>
-            </select>
+            <label for="eyeCornerRadius">Eye Corner Radius: <span id="eyeCornerRadiusValue">0.2</span></label>
+            <input type="range" id="eyeCornerRadius" min="0" max="0.5" value="0.2" step="0.05">
+            <div class="info-text">0 = square, 0.5 = circle (affects eyes + pupils)</div>
+          </div>
+
+          <div class="form-group">
+            <label for="eyeStrokeWidth">Eye Border Width: <span id="eyeStrokeWidthValue">1.0</span>x</label>
+            <input type="range" id="eyeStrokeWidth" min="0.9" max="1.1" value="1.0" step="0.01">
+            <div class="info-text">1.0 = standard, 1.1 = thicker, 0.9 = thinner</div>
           </div>
 
           <div class="form-group">
@@ -398,13 +419,9 @@
         <div class="section">
           <h2>Border</h2>
           <div class="form-group">
-            <label for="borderShape">Border Shape</label>
-            <select id="borderShape">
-              <option value="none">None</option>
-              <option value="square">Square</option>
-              <option value="squircle" selected>Squircle</option>
-              <option value="circle">Circle</option>
-            </select>
+            <label for="borderCornerRadius">Border Corner Radius: <span id="borderCornerRadiusValue">0.04</span></label>
+            <input type="range" id="borderCornerRadius" min="0" max="0.5" value="0.04" step="0.01">
+            <div class="info-text">0 = square, 0.19 = squircle, 0.5 = circle</div>
           </div>
           
           <div class="form-group">
@@ -412,12 +429,14 @@
             <select id="borderStyle">
               <option value="solid" selected>Solid</option>
               <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+              <option value="double">Double</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="borderWidth">Border Width: <span id="borderWidthValue">6</span>px</label>
-            <input type="range" id="borderWidth" min="0" max="50" value="6" step="1">
+            <label for="borderWidth">Border Width: <span id="borderWidthValue">0</span>px</label>
+            <input type="range" id="borderWidth" min="0" max="50" value="0" step="1">
             <div class="info-text">Border thickness in pixels (0-50)</div>
           </div>
 
@@ -470,7 +489,7 @@
   <script type="module">
     // Import from CDN for GitHub Pages deployment
     // For local development, you can use: '../dist/browser.mjs'
-    import { genQrImage } from 'https://unpkg.com/@tapple.io/qr-code-generator/dist/browser.mjs'; //'../dist/browser.mjs';
+    import { genQrImage } from '../dist/browser.mjs';//'https://unpkg.com/@tapple.io/qr-code-generator/dist/browser.mjs'; //'../dist/browser.mjs';
 
     // Constants
     const PREVIEW_SIZE = 300; // Fixed preview size for performance
@@ -523,10 +542,11 @@ END:VCALENDAR`
       pupilColorHex: document.getElementById('pupilColorHex'),
       dotColor: document.getElementById('dotColor'),
       dotColorHex: document.getElementById('dotColorHex'),
-      eyeShape: document.getElementById('eyeShape'),
+      eyeCornerRadius: document.getElementById('eyeCornerRadius'),
+      eyeStrokeWidth: document.getElementById('eyeStrokeWidth'),
       dotShape: document.getElementById('dotShape'),
       dotScale: document.getElementById('dotScale'),
-      borderShape: document.getElementById('borderShape'),
+      borderCornerRadius: document.getElementById('borderCornerRadius'),
       borderWidth: document.getElementById('borderWidth'),
       borderColor: document.getElementById('borderColor'),
       borderColorHex: document.getElementById('borderColorHex'),
@@ -688,6 +708,9 @@ END:VCALENDAR`
         return;
       }
 
+      // Show loading spinner
+      elements.qrDisplay.innerHTML = '<div class="spinner"></div>';
+
       try {
         // Get user-specified values
         const userSize = parseInt(elements.size.value);
@@ -716,8 +739,9 @@ END:VCALENDAR`
           margin: previewMargin,
           backgroundColor: elements.bgColorHex.value,
           eyes: {
-            shape: elements.eyeShape.value,
-            color: elements.eyeColorHex.value
+            cornerRadius: parseFloat(elements.eyeCornerRadius.value),
+            color: elements.eyeColorHex.value,
+            strokeWidth: parseFloat(elements.eyeStrokeWidth.value)
           },
           pupils: {
             color: elements.pupilColorHex.value
@@ -729,10 +753,10 @@ END:VCALENDAR`
           }
         };
 
-        // Add border if not "none"
-        if (elements.borderShape.value !== 'none') {
+        // Add border if width > 0
+        if (previewBorderWidth > 0) {
           options.border = {
-            shape: elements.borderShape.value,
+            cornerRadius: parseFloat(elements.borderCornerRadius.value),
             width: previewBorderWidth,
             color: elements.borderColorHex.value,
             style: elements.borderStyle.value
@@ -754,6 +778,9 @@ END:VCALENDAR`
         };
 
         const dataURL = await genQrImage(content, options);
+
+        // Add 1 second delay to show spinner
+        await new Promise(resolve => setTimeout(resolve, 250));
 
         // Display QR code
         elements.qrDisplay.innerHTML = `<img src="${dataURL}" alt="Generated QR Code">`;
@@ -817,8 +844,9 @@ END:VCALENDAR`
         margin: parseInt(elements.margin.value),
         backgroundColor: elements.bgColorHex.value,
         eyes: {
-          shape: elements.eyeShape.value,
-          color: elements.eyeColorHex.value
+          cornerRadius: parseFloat(elements.eyeCornerRadius.value),
+          color: elements.eyeColorHex.value,
+          strokeWidth: parseFloat(elements.eyeStrokeWidth.value)
         },
         pupils: {
           color: elements.pupilColorHex.value
@@ -830,9 +858,9 @@ END:VCALENDAR`
         }
       };
 
-      if (elements.borderShape.value !== 'none') {
+      if (parseFloat(elements.borderWidth.value) > 0) {
         options.border = {
-          shape: elements.borderShape.value,
+          cornerRadius: parseFloat(elements.borderCornerRadius.value),
           width: parseFloat(elements.borderWidth.value),
           color: elements.borderColorHex.value,
           style: elements.borderStyle.value
@@ -861,9 +889,19 @@ END:VCALENDAR`
 
     // Add event listeners to all inputs
     elements.content.addEventListener('input', generateQR);
-    elements.eyeShape.addEventListener('change', generateQR);
+    elements.eyeCornerRadius.addEventListener('input', () => {
+      document.getElementById('eyeCornerRadiusValue').textContent = elements.eyeCornerRadius.value;
+      generateQR();
+    });
+    elements.eyeStrokeWidth.addEventListener('input', () => {
+      document.getElementById('eyeStrokeWidthValue').textContent = elements.eyeStrokeWidth.value;
+      generateQR();
+    });
+    elements.borderCornerRadius.addEventListener('input', () => {
+      document.getElementById('borderCornerRadiusValue').textContent = elements.borderCornerRadius.value;
+      generateQR();
+    });
     elements.dotShape.addEventListener('change', generateQR);
-    elements.borderShape.addEventListener('change', generateQR);
     elements.borderStyle.addEventListener('change', generateQR);
 
     // Set up color input synchronization (must be after generateQR is defined)

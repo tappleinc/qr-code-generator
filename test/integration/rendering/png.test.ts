@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { genQrImage } from '../../../src/index';
-import { BorderShape } from '../../../src/types';
+// No BorderShape needed anymore
 
 describe('PNG Rendering', () => {
   const testInput = 'Hello World';
@@ -215,7 +215,7 @@ describe('PNG Rendering', () => {
   describe('Border rendering', () => {
     it('should generate valid PNG with square border', async () => {
       const buffer = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUARE, width: 10, color: '#FF0000' },
+        border: { cornerRadius: 0, width: 10, color: '#FF0000' },
         output: { format: 'png', type: 'buffer' }
       }) as Uint8Array;
       
@@ -226,7 +226,7 @@ describe('PNG Rendering', () => {
     
     it('should generate valid PNG with squircle border', async () => {
       const buffer = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUIRCLE, width: 10, color: '#00FF00' },
+        border: { cornerRadius: 0.19, width: 10, color: '#00FF00' },
         output: { format: 'png', type: 'buffer' }
       }) as Uint8Array;
       
@@ -237,7 +237,7 @@ describe('PNG Rendering', () => {
     
     it('should generate valid PNG with circle border', async () => {
       const buffer = await genQrImage(testInput, {
-        border: { shape: BorderShape.CIRCLE, width: 10, color: '#0000FF' },
+        border: { cornerRadius: 0.5, width: 10, color: '#0000FF' },
         output: { format: 'png', type: 'buffer' }
       }) as Uint8Array;
       
@@ -248,7 +248,7 @@ describe('PNG Rendering', () => {
     
     it('should generate valid PNG without border by default', async () => {
       const bufferWithBorder = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUARE, width: 10, color: '#000000' },
+        border: { cornerRadius: 0, width: 10, color: '#000000' },
         output: { format: 'png', type: 'buffer' }
       }) as Uint8Array;
       const bufferWithoutBorder = await genQrImage(testInput, {
@@ -266,7 +266,7 @@ describe('PNG Rendering', () => {
   describe('Border rendering (PNG)', () => {
     it('should generate valid PNG with circle border', async () => {
       const buffer = await genQrImage(testInput, {
-        border: { shape: BorderShape.CIRCLE, width: 20 },
+        border: { cornerRadius: 0.5, width: 20 },
         output: { format: 'png', type: 'buffer' }
       }) as Uint8Array;
       
@@ -280,7 +280,7 @@ describe('PNG Rendering', () => {
     it('should generate valid PNG with border and zero margin', async () => {
       const buffer = await genQrImage(testInput, {
         margin: 0,
-        border: { shape: BorderShape.CIRCLE, width: 30 },
+        border: { cornerRadius: 0.5, width: 30 },
         output: { format: 'png', type: 'buffer' }
       }) as Uint8Array;
       
@@ -290,7 +290,7 @@ describe('PNG Rendering', () => {
     
     it('should generate valid PNG dataURL with border', async () => {
       const dataURL = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUIRCLE, width: 20 },
+        border: { cornerRadius: 0.19, width: 20 },
         output: { format: 'png', type: 'dataURL' }
       }) as string;
       

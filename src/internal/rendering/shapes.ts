@@ -155,32 +155,31 @@ function calculateCircleDashPattern(
 }
 
 // ============================================================================
-// Eye Frame Shapes (7×7 outer border)
+// Eye Shape Rendering (uses native SVG <rect rx> for corner radius)
 // ============================================================================
 
-export const EyeFrameShapes: Record<string, ShapeDefinition> = {
-  square: {
-    renderSVG(x: number, y: number, size: number, color: string): string {
-      return `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${color}"/>`;
-    },
-  },
-
-  squircle: {
-    renderSVG(x: number, y: number, size: number, color: string): string {
-      const half = size / 2;
-      const k = half * SQUIRCLE_CONTROL_POINTS.EYE_FRAME;
-      const cx = x + half;
-      const cy = y + half;
-
-      const path = `M${cx},${cy - half}
-        C${cx + k},${cy - half} ${cx + half},${cy - k} ${cx + half},${cy}
-        S${cx + k},${cy + half} ${cx},${cy + half}
-        S${cx - half},${cy + k} ${cx - half},${cy}
-        S${cx - k},${cy - half} ${cx},${cy - half}Z`;
-      return `<path d="${path}" fill="${color}"/>`;
-    },
-  },
-};
+/**
+ * Render eye shape (frame, gap, or pupil)
+ * Always renders filled shapes. Border thickness is controlled by adjusting gap layer size.
+ *
+ * @param x - X position
+ * @param y - Y position
+ * @param size - Size of the shape (width and height)
+ * @param color - Fill color
+ * @param cornerRadius - Corner radius scale: 0 = square, 0.5 = circle
+ */
+export function renderEyeShape(
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+  cornerRadius: number
+): string {
+  // Calculate actual corner radius in pixels
+  // cornerRadius 0 = square (rx=0), cornerRadius 0.5 = circle (rx=50% of size)
+  const rx = size * cornerRadius;
+  return `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${rx}" fill="${color}"/>`;
+}
 
 // ============================================================================
 // Data Dot Shapes
@@ -219,163 +218,85 @@ export const DotShapes: Record<string, ShapeDefinition> = {
 };
 
 // ============================================================================
-// Border Shapes
+// Border Rendering (unified rect-based with corner radius)
 // ============================================================================
 
-export const BorderShapes: Record<string, ShapeDefinition> = {
-  square: {
-    getDiagonalFactor(): number {
-      return Math.sqrt(2);
-    },
-    renderSVG(
-      x: number,
-      y: number,
-      size: number,
-      color: string,
-      context?: ShapeContext
-    ): string {
-      const borderWidth = context?.borderWidth ?? 1;
-      const style = context?.borderStyle ?? 'solid';
+/**
+ * Render border as single rect with variable corner radius
+ * 
+ * @param x - X position
+ * @param y - Y position  
+ * @param size - Size of border area
+ * @param color - Border color
+ * @param borderWidth - Border stroke width
+ * @param cornerRadius - Corner radius scale (0 = square, 0.5 = circle, 0.19 = squircle)
+ * @param style - Border style (solid, dashed, dotted, double)
+ */
+export function renderBorder(
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+  borderWidth: number,
+  cornerRadius: number,
+  style: BorderStyle = BorderStyle.SOLID
+): string {
+  // Calculate actual corner radius in pixels
+  const rx = size * cornerRadius;
+  
+  // Calculate stroke center position (stroke expands equally inward/outward from center)
+  const inset = borderWidth / 2;
+  const rectSize = size - borderWidth;
 
-      if (style === 'dashed') {
-        const inset = borderWidth / 2;
-        const rectSize = size - borderWidth;
-        const { dashArray, offset } = calculateSquareDashPattern(
-          rectSize,
-          borderWidth
-        );
+  if (style === 'dashed') {
+    const { dashArray, offset } = calculateSquareDashPattern(
+      rectSize,
+      borderWidth
+    );
+    return (
+      `<rect x="${x + inset}" y="${y + inset}" width="${rectSize}" height="${rectSize}" rx="${rx}" ` +
+      `fill="none" stroke="${color}" stroke-width="${borderWidth}" ` +
+      `stroke-dasharray="${dashArray}" stroke-dashoffset="${-offset}"/>`
+    );
+  }
 
-        // Use stroked rect for dashed border
-        // Note: x,y are usually 0,0 for borders as they wrap the whole QR
-        return (
-          `<rect x="${x + inset}" y="${y + inset}" width="${rectSize}" height="${rectSize}" ` +
-          `fill="none" stroke="${color}" stroke-width="${borderWidth}" ` +
-          `stroke-dasharray="${dashArray}" stroke-dashoffset="${-offset}"/>`
-        );
-      }
+  if (style === 'dotted') {
+    // Dotted: very small dash with round caps creates distinct dots
+    // Use 0.1 for dash (round caps make it circular) and larger gap for spacing
+    const dotSize = borderWidth * 0.1;
+    const gapSize = borderWidth * 1.5;
+    return (
+      `<rect x="${x + inset}" y="${y + inset}" width="${rectSize}" height="${rectSize}" rx="${rx}" ` +
+      `fill="none" stroke="${color}" stroke-width="${borderWidth}" ` +
+      `stroke-dasharray="${dotSize} ${gapSize}" stroke-linecap="round"/>`
+    );
+  }
 
-      // Solid: Outer rectangle minus Inner rectangle
-      const outerPath = `M${x},${y}h${size}v${size}h${-size}z`;
-      const innerX = x + borderWidth;
-      const innerY = y + borderWidth;
-      const innerSize = size - borderWidth * 2;
-      const innerPath = `M${innerX},${innerY}h${innerSize}v${innerSize}h${-innerSize}z`;
+  if (style === 'double') {
+    // Double: two concentric strokes
+    const outerStrokeWidth = borderWidth * 0.3;
+    const innerStrokeWidth = borderWidth * 0.3;
+    const gap = borderWidth * 0.4;
+    
+    const outerInset = outerStrokeWidth / 2;
+    const outerSize = size - outerStrokeWidth;
+    const outerRx = outerSize * cornerRadius;
+    
+    const innerInset = outerStrokeWidth + gap + innerStrokeWidth / 2;
+    const innerSize = size - 2 * innerInset;
+    const innerRx = innerSize * cornerRadius;
+    
+    return (
+      `<rect x="${x + outerInset}" y="${y + outerInset}" width="${outerSize}" height="${outerSize}" rx="${outerRx}" ` +
+      `fill="none" stroke="${color}" stroke-width="${outerStrokeWidth}"/>` +
+      `<rect x="${x + innerInset}" y="${y + innerInset}" width="${innerSize}" height="${innerSize}" rx="${innerRx}" ` +
+      `fill="none" stroke="${color}" stroke-width="${innerStrokeWidth}"/>`
+    );
+  }
 
-      return `<path d="${outerPath} ${innerPath}" fill="${color}" fill-rule="evenodd"/>`;
-    },
-  },
-
-  squircle: {
-    getDiagonalFactor(): number {
-      return Math.pow(2, 0.25);
-    },
-    renderSVG(
-      x: number,
-      y: number,
-      size: number,
-      color: string,
-      context?: ShapeContext
-    ): string {
-      const borderWidth = context?.borderWidth ?? 1;
-      const style = context?.borderStyle ?? 'solid';
-      const half = size / 2;
-      const cx = x + half;
-      const cy = y + half;
-
-      // Use stroke-based rendering for BOTH solid and dashed to ensure uniform width
-      const strokeRadius = half - borderWidth / 2;
-
-      // Use Rounded Rectangle logic (CSS border-radius style)
-      // This is simpler and more consistent than superellipses
-      const cornerRadius = size * SQUIRCLE_CORNER_RADIUS_RATIO;
-
-      // For the stroke path, the radius is adjusted to be the center of the border
-      // If cornerRadius is the outer visual radius, stroke path radius is cornerRadius - borderWidth/2
-      const pathCornerRadius = Math.max(0, cornerRadius - borderWidth / 2);
-
-      // Construct path manually to ensure control over start point (top-center) for dashing
-      const innerDim = strokeRadius - pathCornerRadius;
-
-      // Start at top-center
-      const strokePath = `M${cx},${cy - strokeRadius}
-        H${cx + innerDim}
-        A${pathCornerRadius},${pathCornerRadius} 0 0 1 ${cx + strokeRadius},${cy - innerDim}
-        V${cy + innerDim}
-        A${pathCornerRadius},${pathCornerRadius} 0 0 1 ${cx + innerDim},${cy + strokeRadius}
-        H${cx - innerDim}
-        A${pathCornerRadius},${pathCornerRadius} 0 0 1 ${cx - strokeRadius},${cy + innerDim}
-        V${cy - innerDim}
-        A${pathCornerRadius},${pathCornerRadius} 0 0 1 ${cx - innerDim},${cy - strokeRadius}
-        Z`;
-
-      if (style === 'dashed') {
-        // Calculate exact perimeter for dash pattern
-        const straightLen = 2 * innerDim;
-        const arcLen = 0.5 * Math.PI * pathCornerRadius;
-        const perimeter = 4 * straightLen + 4 * arcLen;
-
-        const { dashArray, offset } = calculateCircleDashPattern(
-          perimeter,
-          borderWidth
-        );
-
-        return (
-          `<path d="${strokePath}" fill="none" stroke="${color}" ` +
-          `stroke-width="${borderWidth}" stroke-dasharray="${dashArray}" ` +
-          `stroke-dashoffset="${offset}"/>`
-        );
-      }
-
-      // Solid border - just stroke the path
-      return `<path d="${strokePath}" fill="none" stroke="${color}" stroke-width="${borderWidth}"/>`;
-    },
-  },
-
-  circle: {
-    getDiagonalFactor(): number {
-      return 1.0;
-    },
-    renderSVG(
-      x: number,
-      y: number,
-      size: number,
-      color: string,
-      context?: ShapeContext
-    ): string {
-      const borderWidth = context?.borderWidth ?? 1;
-      const style = context?.borderStyle ?? 'solid';
-      const cx = x + size / 2;
-      const cy = y + size / 2;
-      const outerRadius = size / 2;
-
-      if (style === 'dashed') {
-        const strokeRadius = outerRadius - borderWidth / 2;
-        const circumference = 2 * Math.PI * strokeRadius;
-        const { dashArray, offset } = calculateCircleDashPattern(
-          circumference,
-          borderWidth
-        );
-
-        return (
-          `<circle cx="${cx}" cy="${cy}" r="${strokeRadius}" ` +
-          `fill="none" stroke="${color}" stroke-width="${borderWidth}" ` +
-          `stroke-dasharray="${dashArray}" stroke-dashoffset="${offset}"/>`
-        );
-      }
-
-      const innerRadius = outerRadius - borderWidth;
-
-      // Outer circle (clockwise)
-      const outerPath = `M${cx},${cy - outerRadius}
-        A${outerRadius},${outerRadius} 0 1,1 ${cx},${cy + outerRadius}
-        A${outerRadius},${outerRadius} 0 1,1 ${cx},${cy - outerRadius}Z`;
-
-      // Inner circle (counter-clockwise to create hole)
-      const innerPath = `M${cx},${cy - innerRadius}
-        A${innerRadius},${innerRadius} 0 1,0 ${cx},${cy + innerRadius}
-        A${innerRadius},${innerRadius} 0 1,0 ${cx},${cy - innerRadius}Z`;
-
-      return `<path d="${outerPath} ${innerPath}" fill="${color}" fill-rule="evenodd"/>`;
-    },
-  },
-};
+  // Solid: simple stroke
+  return (
+    `<rect x="${x + inset}" y="${y + inset}" width="${rectSize}" height="${rectSize}" rx="${rx}" ` +
+    `fill="none" stroke="${color}" stroke-width="${borderWidth}"/>`
+  );
+}
