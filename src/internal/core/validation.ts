@@ -148,9 +148,16 @@ function validateField(
     case 'borderStyle':
       if (
         typeof value !== 'string' ||
-        (value !== 'solid' && value !== 'dashed' && value !== 'dotted' && value !== 'double')
+        (value !== 'solid' &&
+          value !== 'dashed' &&
+          value !== 'dotted' &&
+          value !== 'double')
       ) {
-        return { field, value, message: 'must be "solid", "dashed", "dotted", or "double"' };
+        return {
+          field,
+          value,
+          message: 'must be "solid", "dashed", "dotted", or "double"',
+        };
       }
       return null;
     default:

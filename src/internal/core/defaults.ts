@@ -139,7 +139,8 @@ export function mergeImageOptions(options?: ImageOptions): MergedImageOptions {
       normalized.backgroundColor ?? DEFAULT_IMAGE_OPTIONS.backgroundColor,
     eyes: {
       cornerRadius:
-        normalized.eyes?.cornerRadius ?? DEFAULT_IMAGE_OPTIONS.eyes.cornerRadius,
+        normalized.eyes?.cornerRadius ??
+        DEFAULT_IMAGE_OPTIONS.eyes.cornerRadius,
       color: normalized.eyes?.color ?? DEFAULT_IMAGE_OPTIONS.eyes.color,
       strokeWidth:
         normalized.eyes?.strokeWidth ?? DEFAULT_IMAGE_OPTIONS.eyes.strokeWidth,
@@ -159,7 +160,9 @@ export function mergeImageOptions(options?: ImageOptions): MergedImageOptions {
         }
       : undefined,
     border: {
-      cornerRadius: normalized.border?.cornerRadius ?? DEFAULT_IMAGE_OPTIONS.border.cornerRadius,
+      cornerRadius:
+        normalized.border?.cornerRadius ??
+        DEFAULT_IMAGE_OPTIONS.border.cornerRadius,
       width: normalized.border?.width ?? DEFAULT_IMAGE_OPTIONS.border.width,
       color: normalized.border?.color ?? DEFAULT_IMAGE_OPTIONS.border.color,
       style: normalized.border?.style ?? DEFAULT_IMAGE_OPTIONS.border.style,

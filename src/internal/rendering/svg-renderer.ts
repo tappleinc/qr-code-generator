@@ -37,17 +37,11 @@ function renderEye(
   // Calculate gap layer size based on strokeWidth (border thickness)
   // Formula: gapSize = 7 - (2 × borderWidth)
   const borderWidth = strokeWidth;
-  const gapSize = 7 - (2 * borderWidth);
+  const gapSize = 7 - 2 * borderWidth;
   const gapInset = (7 - gapSize) / 2;
 
   // Layer 1: Outer frame (7×7 modules = 7*scale pixels, always fixed)
-  const frame = renderEyeShape(
-    x,
-    y,
-    7 * scale,
-    eyeFrameColor,
-    cornerRadius
-  );
+  const frame = renderEyeShape(x, y, 7 * scale, eyeFrameColor, cornerRadius);
 
   // Layer 2: Middle gap (variable size based on strokeWidth)
   const middle = renderEyeShape(

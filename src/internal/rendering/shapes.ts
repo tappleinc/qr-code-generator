@@ -120,40 +120,6 @@ function calculateSquareDashPattern(
   };
 }
 
-/**
- * Calculate dash pattern for circular/squircle borders with even distribution
- */
-function calculateCircleDashPattern(
-  perimeter: number,
-  borderWidth: number
-): { dashArray: string; offset: number } {
-  // Target dash and gap lengths
-  const targetDashLength = borderWidth * 3;
-  const targetGapLength = borderWidth * 2;
-  const targetPatternLength = targetDashLength + targetGapLength;
-
-  // Calculate number of dashes
-  let numDashes = Math.round(perimeter / targetPatternLength);
-
-  // Force multiple of 4 for 4-fold symmetry (ensures corners look identical)
-  // This aligns dashes/gaps to the 4 quadrants of the circle/squircle
-  numDashes = Math.round(numDashes / 4) * 4;
-  numDashes = Math.max(4, numDashes); // Minimum 4 dashes
-
-  // Calculate adjusted lengths to fit exactly
-  const actualPatternLength = perimeter / numDashes;
-  const actualDashLength = actualPatternLength * 0.6;
-  const actualGapLength = actualPatternLength * 0.4;
-
-  // Offset to start with a dash centered at top
-  const offset = actualDashLength / 2;
-
-  return {
-    dashArray: `${actualDashLength} ${actualGapLength}`,
-    offset: offset,
-  };
-}
-
 // ============================================================================
 // Eye Shape Rendering (uses native SVG <rect rx> for corner radius)
 // ============================================================================
@@ -223,9 +189,9 @@ export const DotShapes: Record<string, ShapeDefinition> = {
 
 /**
  * Render border as single rect with variable corner radius
- * 
+ *
  * @param x - X position
- * @param y - Y position  
+ * @param y - Y position
  * @param size - Size of border area
  * @param color - Border color
  * @param borderWidth - Border stroke width
@@ -243,7 +209,7 @@ export function renderBorder(
 ): string {
   // Calculate actual corner radius in pixels
   const rx = size * cornerRadius;
-  
+
   // Calculate stroke center position (stroke expands equally inward/outward from center)
   const inset = borderWidth / 2;
   const rectSize = size - borderWidth;
@@ -277,15 +243,15 @@ export function renderBorder(
     const outerStrokeWidth = borderWidth * 0.3;
     const innerStrokeWidth = borderWidth * 0.3;
     const gap = borderWidth * 0.4;
-    
+
     const outerInset = outerStrokeWidth / 2;
     const outerSize = size - outerStrokeWidth;
     const outerRx = outerSize * cornerRadius;
-    
+
     const innerInset = outerStrokeWidth + gap + innerStrokeWidth / 2;
     const innerSize = size - 2 * innerInset;
     const innerRx = innerSize * cornerRadius;
-    
+
     return (
       `<rect x="${x + outerInset}" y="${y + outerInset}" width="${outerSize}" height="${outerSize}" rx="${outerRx}" ` +
       `fill="none" stroke="${color}" stroke-width="${outerStrokeWidth}"/>` +
