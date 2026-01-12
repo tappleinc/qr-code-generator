@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { genQrImage, genQrText, BorderShape } from '../../src/index';
+import { genQrImage, genQrText } from '../../src/index';
 
 describe('Empty String Normalization', () => {
   const testInput = 'Test';
@@ -49,7 +49,7 @@ describe('Empty String Normalization', () => {
 
     it('should treat empty border.color as undefined (use default)', async () => {
       const result = await genQrImage(testInput, {
-        border: { color: '', shape: BorderShape.SQUARE },
+        border: { color: '', cornerRadius: 0 },
         output: { format: 'svg', type: 'string' },
       });
       expect(result).toContain('<svg');
@@ -63,7 +63,7 @@ describe('Empty String Normalization', () => {
         eyes: { color: '' },
         pupils: { color: '' },
         dots: { color: '' },
-        border: { color: '', shape: BorderShape.SQUARE },
+        border: { color: '', cornerRadius: 0 },
         output: { format: 'svg', type: 'string' },
       });
       expect(result).toContain('<svg');

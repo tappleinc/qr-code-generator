@@ -11,7 +11,6 @@
 import {
   ImageOptions,
   TextOptions,
-  BorderShape,
   BorderStyle,
   OutputConfig,
 } from '../../types';
@@ -29,8 +28,9 @@ export const DEFAULT_IMAGE_OPTIONS = {
   margin: 24,
   backgroundColor: '#ffffff',
   eyes: {
-    shape: 'square' as 'square' | 'squircle',
+    cornerRadius: 0.2, // 0 = square, 0.5 = circle
     color: '#000000',
+    strokeWidth: 1.0, // 1.0 = standard 1-module border width
   },
   pupils: {
     color: '#000000',
@@ -46,8 +46,8 @@ export const DEFAULT_IMAGE_OPTIONS = {
     // Maximum recommended: 0.3 (30%) with high error correction
   },
   border: {
-    shape: BorderShape.NONE,
-    width: 10,
+    cornerRadius: 0.04, // 0 = square, 0.5 = circle, 0.19 = squircle
+    width: 0, // 0 = no border
     color: '#000000',
     style: BorderStyle.SOLID,
   },
@@ -65,8 +65,9 @@ export type MergedImageOptions = {
   margin: number;
   backgroundColor: string;
   eyes: {
-    shape: 'square' | 'squircle';
+    cornerRadius: number;
     color: string;
+    strokeWidth: number;
   };
   pupils: {
     color: string;
@@ -81,7 +82,7 @@ export type MergedImageOptions = {
     scale: number; // Always required after merge
   };
   border: {
-    shape: BorderShape;
+    cornerRadius: number;
     width: number;
     color: string;
     style: BorderStyle;
@@ -137,8 +138,11 @@ export function mergeImageOptions(options?: ImageOptions): MergedImageOptions {
     backgroundColor:
       normalized.backgroundColor ?? DEFAULT_IMAGE_OPTIONS.backgroundColor,
     eyes: {
-      shape: normalized.eyes?.shape ?? DEFAULT_IMAGE_OPTIONS.eyes.shape,
+      cornerRadius:
+        normalized.eyes?.cornerRadius ?? DEFAULT_IMAGE_OPTIONS.eyes.cornerRadius,
       color: normalized.eyes?.color ?? DEFAULT_IMAGE_OPTIONS.eyes.color,
+      strokeWidth:
+        normalized.eyes?.strokeWidth ?? DEFAULT_IMAGE_OPTIONS.eyes.strokeWidth,
     },
     pupils: {
       color: normalized.pupils?.color ?? DEFAULT_IMAGE_OPTIONS.pupils.color,
@@ -155,7 +159,7 @@ export function mergeImageOptions(options?: ImageOptions): MergedImageOptions {
         }
       : undefined,
     border: {
-      shape: normalized.border?.shape ?? DEFAULT_IMAGE_OPTIONS.border.shape,
+      cornerRadius: normalized.border?.cornerRadius ?? DEFAULT_IMAGE_OPTIONS.border.cornerRadius,
       width: normalized.border?.width ?? DEFAULT_IMAGE_OPTIONS.border.width,
       color: normalized.border?.color ?? DEFAULT_IMAGE_OPTIONS.border.color,
       style: normalized.border?.style ?? DEFAULT_IMAGE_OPTIONS.border.style,

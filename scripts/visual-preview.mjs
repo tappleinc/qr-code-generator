@@ -249,7 +249,7 @@ const TEST_MATRIX = [
     name: 'none',
     input: 'Border Test',
     options: {
-      border: { shape: 'none' },
+      border: { width: 0 },
     },
     description: 'No border',
   },
@@ -258,7 +258,7 @@ const TEST_MATRIX = [
     name: 'square-solid',
     input: 'Border Test',
     options: {
-      border: { shape: 'square', width: 10, color: '#000000', style: 'solid' },
+      border: { cornerRadius: 0, width: 10, color: '#000000', style: 'solid' },
     },
     description: 'Square solid border',
   },
@@ -267,7 +267,7 @@ const TEST_MATRIX = [
     name: 'squircle-dashed',
     input: 'Border Test',
     options: {
-      border: { shape: 'squircle', width: 15, color: '#0984E3', style: 'dashed' },
+      border: { cornerRadius: 0.19, width: 15, color: '#0984E3', style: 'dashed' },
     },
     description: 'Squircle dashed border',
   },
@@ -276,7 +276,7 @@ const TEST_MATRIX = [
     name: 'circle-solid',
     input: 'Border Test',
     options: {
-      border: { shape: 'circle', width: 12, color: '#D63031', style: 'solid' },
+      border: { cornerRadius: 0.5, width: 12, color: '#D63031', style: 'solid' },
     },
     description: 'Circle solid border',
   },
@@ -407,7 +407,7 @@ const TEST_MATRIX = [
     name: 'logo-with-border',
     input: 'Logo Test',
     options: {
-      border: { shape: 'squircle', width: 12, color: '#667eea', style: 'solid' },
+      border: { cornerRadius: 0.19, width: 12, color: '#667eea', style: 'solid' },
       logo: {
         src: pngToDataURL(DEMO_LOGO_PNG),
       },
@@ -447,10 +447,10 @@ const TEST_MATRIX = [
       size: 600,
       margin: 32,
       backgroundColor: '#F0F0F0',
-      eyes: { shape: 'squircle', color: '#2D3436' },
+      eyes: { cornerRadius: 0.19, color: '#2D3436' },
       pupils: { color: '#0984E3' },
       dots: { shape: 'dots', color: '#6C5CE7', scale: 1.1 },
-      border: { shape: 'squircle', width: 10, color: '#DFE6E9', style: 'solid' },
+      border: { cornerRadius: 0.19, width: 10, color: '#DFE6E9', style: 'solid' },
     },
     description: 'All options combined',
   },

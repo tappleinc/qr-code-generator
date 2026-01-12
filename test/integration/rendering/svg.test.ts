@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { genQrImage } from '../../../src/index';
-import { BorderShape, BorderStyle } from '../../../src/types';
+import { BorderStyle } from '../../../src/types';
 
 describe('SVG Rendering', () => {
   const testInput = 'Hello World';
@@ -220,17 +220,17 @@ describe('SVG Rendering', () => {
     
     it('should render square border', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUARE, width: 10, color: '#FF0000' },
+        border: { cornerRadius: 0, width: 10, color: '#FF0000' },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
-      expect(svg).toContain('fill-rule="evenodd"');
-      expect(svg).toContain('#FF0000');
+      expect(svg).toContain('stroke="#FF0000"');
+      expect(svg).toContain('fill="none"');
     });
     
     it('should render squircle border', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUIRCLE, width: 10, color: '#00FF00' },
+        border: { cornerRadius: 0.19, width: 10, color: '#00FF00' },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -241,17 +241,17 @@ describe('SVG Rendering', () => {
     
     it('should render circle border', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.CIRCLE, width: 10, color: '#0000FF' },
+        border: { cornerRadius: 0.5, width: 10, color: '#0000FF' },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
-      expect(svg).toContain('fill-rule="evenodd"');
-      expect(svg).toContain('#0000FF');
+      expect(svg).toContain('stroke="#0000FF"');
+      expect(svg).toContain('fill="none"');
     });
     
     it('should not render border with width 0', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUARE, width: 0, color: '#000000' },
+        border: { cornerRadius: 0, width: 0, color: '#000000' },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -263,17 +263,17 @@ describe('SVG Rendering', () => {
   describe('Border layering', () => {
     it('should include background rect when border exists', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.CIRCLE, width: 20 },
+        border: { cornerRadius: 0.5, width: 20 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
       // Should have QR background rect positioned after border and before QR group
-      expect(svg).toContain('fill-rule="evenodd"/><rect x="44" y="44" width="300" height="300" fill="#ffffff"/><g transform');
+      expect(svg).toContain('<rect x="44" y="44" width="300" height="300" fill="#ffffff"/><g transform');
     });
     
     it('should work with square border', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUARE, width: 20 },
+        border: { cornerRadius: 0, width: 20 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -283,7 +283,7 @@ describe('SVG Rendering', () => {
     
     it('should work with squircle border', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.SQUIRCLE, width: 20 },
+        border: { cornerRadius: 0.19, width: 20 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -294,7 +294,7 @@ describe('SVG Rendering', () => {
     it('should work with dashed border', async () => {
       const svg = await genQrImage(testInput, {
         border: { 
-          shape: BorderShape.CIRCLE, 
+          cornerRadius: 0.5, 
           width: 20, 
           style: BorderStyle.DASHED
         },
@@ -309,7 +309,7 @@ describe('SVG Rendering', () => {
     it('should work with zero margin', async () => {
       const svg = await genQrImage(testInput, {
         margin: 0,
-        border: { shape: BorderShape.CIRCLE, width: 20 },
+        border: { cornerRadius: 0.5, width: 20 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -319,21 +319,9 @@ describe('SVG Rendering', () => {
       expect(svg).toContain('translate(20, 20)');
     });
     
-    it('should NOT render QR background rect when border shape is NONE', async () => {
-      const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.NONE, width: 20 },
-        output: { format: 'svg', type: 'string' }
-      }) as string;
-      
-      // When border is NONE, there's only canvas background + QR content (no extra rect)
-      const rects = svg.match(/<rect[^>]*>/g) || [];
-      // Should only have: 1 canvas background + 9 eye rects (3 eyes × 3 layers each) = 10 total
-      expect(rects.length).toBe(10);
-    });
-    
     it('should NOT render QR background rect when border width is 0', async () => {
       const svg = await genQrImage(testInput, {
-        border: { shape: BorderShape.CIRCLE, width: 0 },
+        border: { cornerRadius: 0, width: 0 },
         output: { format: 'svg', type: 'string' }
       }) as string;
       
@@ -341,6 +329,18 @@ describe('SVG Rendering', () => {
       const rects = svg.match(/<rect[^>]*>/g) || [];
       // Should only have: 1 canvas background + 9 eye rects (3 eyes × 3 layers each) = 10 total
       expect(rects.length).toBe(10);
+    });
+    
+    it('should render QR background rect when border width > 0', async () => {
+      const svg = await genQrImage(testInput, {
+        border: { cornerRadius: 0.5, width: 20 },
+        output: { format: 'svg', type: 'string' }
+      }) as string;
+      
+      // When border width > 0, border + QR background rect are rendered
+      const rects = svg.match(/<rect[^>]*>/g) || [];
+      // Should have: 1 canvas background + 1 border + 1 QR background + 9 eye rects = 12 total
+      expect(rects.length).toBe(12);
     });
   });
 });

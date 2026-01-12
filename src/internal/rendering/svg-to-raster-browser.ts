@@ -14,7 +14,7 @@ export async function convertSvgToRaster(
   const { output, size, margin, border } = options;
 
   // Calculate total dimensions
-  const borderWidth = border.shape === 'none' ? 0 : border.width;
+  const borderWidth = border.width;
   const totalSize = size + 2 * margin + 2 * borderWidth;
 
   return new Promise((resolve, reject) => {

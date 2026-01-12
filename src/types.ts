@@ -10,14 +10,6 @@
 // ============================================================================
 
 /**
- * Eye frame (outer 7x7 position marker) shape options
- */
-export enum EyeFrameShape {
-  SQUARE = 'square',
-  SQUIRCLE = 'squircle',
-}
-
-/**
  * Data dot (module) shape options
  */
 export enum DotShape {
@@ -27,21 +19,13 @@ export enum DotShape {
 }
 
 /**
- * Border shape options
- */
-export enum BorderShape {
-  NONE = 'none',
-  SQUARE = 'square',
-  SQUIRCLE = 'squircle',
-  CIRCLE = 'circle',
-}
-
-/**
  * Border style options
  */
 export enum BorderStyle {
   SOLID = 'solid',
   DASHED = 'dashed',
+  DOTTED = 'dotted',
+  DOUBLE = 'double',
 }
 
 // ============================================================================
@@ -152,12 +136,20 @@ export interface ImageOptions {
   margin?: number;
   /** Background color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#ffffff') */
   backgroundColor?: string;
-  /** Eye (outer frame) styling */
+  /** Eye (outer frame) styling - pupils inherit these settings */
   eyes?: {
-    /** Eye frame shape (default: 'square') */
-    shape?: EyeFrameShape;
+    /** Corner radius scale: 0 = square, 0.5 = circle (default: 0) - pupils inherit this value */
+    cornerRadius?: number;
     /** Eye frame color - supports hex (#fff, #ffffff), rgb/rgba, hsl/hsla, or named colors (default: '#000000') */
     color?: string;
+    /**
+     * Border width scale (0.9 to 1.1, default: 1.0)
+     * Controls the thickness of the eye frame border:
+     * - 1.0 = standard 1-module border width
+     * - 1.1 = 10% thicker border
+     * - 0.9 = 10% thinner border
+     */
+    strokeWidth?: number;
   };
   /** Pupil (inner core) styling */
   pupils?: {
@@ -182,8 +174,11 @@ export interface ImageOptions {
   };
   /** Border styling (surrounds margin area) */
   border?: {
-    /** Border shape (default: 'none') */
-    shape?: BorderShape;
+    /**
+     * Corner radius scale: 0 = square, 0.5 = circle (default: 0)
+     * Example: 0.19 creates squircle-like rounded corners
+     */
+    cornerRadius?: number;
     /**
      * Border width in pixels (default: 10)
      * Total output size = size + 2×margin + 2×width

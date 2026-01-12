@@ -7,7 +7,7 @@
 
 import { QRCodeConfig } from '../core/types';
 import { MergedImageOptions } from '../core/defaults';
-import { EyeFrameShapes, DotShapes, BorderShapes } from './shapes';
+import { renderEyeShape, DotShapes, renderBorder } from './shapes';
 import { calculateLogoSize } from './utils';
 import { isFinderPattern, getFinderPatterns } from './utils';
 
@@ -17,36 +17,54 @@ import { isFinderPattern, getFinderPatterns } from './utils';
 
 /**
  * Render complete eye (frame + middle layer + pupil)
- * Uses a 3-layer composite approach: 7×7 outer frame, 5×5 white gap, 3×3 inner pupil
+ * Uses a 3-layer composite approach: 7×7 outer frame, variable-sized gap, 3×3 inner pupil
+ * strokeWidth controls the border thickness by adjusting gap size:
+ *   - strokeWidth 1.0 → 5×5 gap → 1 module border (standard)
+ *   - strokeWidth 1.1 → 4.8×4.8 gap → 1.1 module border (thicker)
+ *   - strokeWidth 0.9 → 5.2×5.2 gap → 0.9 module border (thinner)
+ * Pupils always use filled shapes and inherit cornerRadius from eyes.
  */
 function renderEye(
   x: number,
   y: number,
-  eyeFrameShape: string,
+  cornerRadius: number,
+  strokeWidth: number,
   eyeFrameColor: string,
   pupilColor: string,
   backgroundColor: string,
   scale: number
 ): string {
-  const shapeImpl = EyeFrameShapes[eyeFrameShape] || EyeFrameShapes['square'];
+  // Calculate gap layer size based on strokeWidth (border thickness)
+  // Formula: gapSize = 7 - (2 × borderWidth)
+  const borderWidth = strokeWidth;
+  const gapSize = 7 - (2 * borderWidth);
+  const gapInset = (7 - gapSize) / 2;
 
-  // Layer 1: Outer frame (7×7 modules = 7*scale pixels)
-  const frame = shapeImpl.renderSVG(x, y, 7 * scale, eyeFrameColor);
-
-  // Layer 2: Middle gap (5×5 modules) - matches eye frame shape for visual consistency
-  const middle = shapeImpl.renderSVG(
-    x + scale,
-    y + scale,
-    5 * scale,
-    backgroundColor
+  // Layer 1: Outer frame (7×7 modules = 7*scale pixels, always fixed)
+  const frame = renderEyeShape(
+    x,
+    y,
+    7 * scale,
+    eyeFrameColor,
+    cornerRadius
   );
 
-  // Layer 3: Inner pupil (3×3 modules) - matches eye frame shape
-  const pupil = shapeImpl.renderSVG(
+  // Layer 2: Middle gap (variable size based on strokeWidth)
+  const middle = renderEyeShape(
+    x + gapInset * scale,
+    y + gapInset * scale,
+    gapSize * scale,
+    backgroundColor,
+    cornerRadius
+  );
+
+  // Layer 3: Inner pupil (3×3 modules, always fixed and centered)
+  const pupil = renderEyeShape(
     x + 2 * scale,
     y + 2 * scale,
     3 * scale,
-    pupilColor
+    pupilColor,
+    cornerRadius
   );
 
   return frame + middle + pupil;
@@ -231,8 +249,7 @@ export function renderSVGString(
 
   // Calculate dimensions in pixels
   const scale = size / qrCodeConfig.matrixSize; // pixels per module (for QR matrix only)
-  const borderWidth =
-    options.border.shape === 'none' ? 0 : options.border.width;
+  const borderWidth = options.border.width;
   const totalSize = size + 2 * margin + 2 * borderWidth;
   const qrOffset = margin + borderWidth; // Offset from edge to QR matrix
 
@@ -241,28 +258,22 @@ export function renderSVGString(
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalSize} ${totalSize}">`;
   svg += `<rect width="${totalSize}" height="${totalSize}" fill="${backgroundColor}"/>`;
 
-  // Render border (if enabled)
-  if (options.border.shape !== 'none' && borderWidth > 0) {
-    const borderShape = BorderShapes[options.border.shape];
-    if (borderShape) {
-      const context = {
-        borderWidth: borderWidth,
-        borderStyle: options.border.style,
-      };
-
-      svg += borderShape.renderSVG(
-        0,
-        0,
-        totalSize,
-        options.border.color,
-        context
-      );
-    }
+  // Render border (if width > 0)
+  if (borderWidth > 0) {
+    svg += renderBorder(
+      0,
+      0,
+      totalSize,
+      options.border.color,
+      borderWidth,
+      options.border.cornerRadius,
+      options.border.style
+    );
   }
 
   // Add QR area background rectangle when border exists
   // This uses simple SVG layering: border renders first, then this rect covers it in QR area
-  if (options.border.shape !== 'none' && borderWidth > 0) {
+  if (borderWidth > 0) {
     svg += `<rect x="${qrOffset}" y="${qrOffset}" width="${size}" height="${size}" fill="${backgroundColor}"/>`;
   }
 
@@ -276,7 +287,8 @@ export function renderSVGString(
     eyesSvg += renderEye(
       pattern.x * scale,
       pattern.y * scale,
-      eyes.shape,
+      eyes.cornerRadius,
+      eyes.strokeWidth,
       eyes.color,
       pupils.color,
       backgroundColor,

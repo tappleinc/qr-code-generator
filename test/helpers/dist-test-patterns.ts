@@ -20,9 +20,7 @@ export function testModuleExports(module: Record<string, unknown>): void {
   expect(module.genQrText).toBeDefined();
   expect(typeof module.genQrText).toBe('function');
   
-  expect(module.EyeFrameShape).toBeDefined();
   expect(module.DotShape).toBeDefined();
-  expect(module.BorderShape).toBeDefined();
   expect(module.BorderStyle).toBeDefined();
 }
 

@@ -193,5 +193,5 @@ genQrText(input, options?)    // Returns string
 ImageOptions, TextOptions, OutputConfig, QRInput, VCardData, WiFiData, etc.
 
 // Enums
-EyeFrameShape, DotShape, BorderShape, BorderStyle
+DotShape, BorderStyle
 ```
