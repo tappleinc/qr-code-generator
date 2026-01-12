@@ -583,7 +583,7 @@ The library includes comprehensive test coverage:
 The demo showcases real-time QR code generation with all available options including colors, shapes, borders, logos, and more.
 
 **Try it locally:**
-va
+
 ```bash
 # Clone the repository
 git clone https://github.com/tappleinc/qr-code-generator.git
